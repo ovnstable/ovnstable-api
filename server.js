@@ -7,12 +7,17 @@ let OverNightToken = JSON.parse(fs.readFileSync('./OvernightToken.json'));
 let Exchange = JSON.parse(fs.readFileSync('./Exchange.json'));
 let M2m = JSON.parse(fs.readFileSync('./Mark2Market.json'));
 
-let web3 = new Web3('https://polygon-mainnet.infura.io/v3/66f5eb50848f458cb0f0506cc1036fea');
+// let web3 = new Web3('https://polygon-mainnet.infura.io/v3/66f5eb50848f458cb0f0506cc1036fea');
+let web3 = new Web3('https://polygon-rpc.com/');
 // let web3 = new Web3('http://localhost:8555');
 web3.eth.net.getId().then(value => {
     console.log(value)
 });
 
+
+console.log(`OverNightToken.networks[137].address: ${OverNightToken.networks[137].address}`)
+console.log(`M2m.networks[137].address: ${M2m.networks[137].address}`)
+console.log(`Exchange.networks[137].address: ${Exchange.networks[137].address}`)
 
 let contract = new web3.eth.Contract(OverNightToken.abi, OverNightToken.networks[137].address);
 let M2mContract = new web3.eth.Contract(M2m.abi, M2m.networks[137].address);
@@ -134,7 +139,7 @@ function runReward() {
     let exchange = new web3.eth.Contract(Exchange.abi, address);
 
     const from = "0x5CB01385d3097b6a189d1ac8BA3364D900666445" // Ovn ADMIN account
-    const to = "0x5EF6c5F6Db0854c34f2E7dee2E4B19F13c94841c" // Exchange
+    const to = address // Exchange
 
     web3.eth.getTransactionCount(from, function (err, nonce) {
 
