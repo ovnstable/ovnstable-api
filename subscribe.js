@@ -2,7 +2,16 @@ const Web3 = require('web3');
 let axios = require('axios');
 const {Sequelize, DataTypes} = require('sequelize');
 
+let sheet = require('./pushToSheet.js');
+
 const fs = require('fs');
+
+let accounting = require("accounting-js")
+let accountingConfig = {
+    symbol: "",
+    precision: 6,
+    thousand: " ",
+};
 
 let Exchange = JSON.parse(fs.readFileSync('./contracts/Exchange.json'));
 let M2m = JSON.parse(fs.readFileSync('./contracts/Mark2Market.json'));
@@ -27,23 +36,23 @@ try {
 } catch (e) {
     console.log('Невозможно выполнить подключение к БД: ', e)
 }
+//
+// let asset = sequelize.define('Asset', {
+//         id: {type: DataTypes.STRING, primaryKey: true},
+//         symbol: DataTypes.STRING,
+//         decimals: DataTypes.STRING,
+//         name: DataTypes.STRING,
+//         amountInVault: DataTypes.NUMBER_TYPE,
+//         usdcPriceInVault: DataTypes.STRING,
+//     },
+//     {
+//         timestamps: true,
+//         tableName: 'asset_prices_for_balance',
+//         underscored: true,
+//     }
+// );
 
-let asset = sequelize.define('Asset', {
-        id: {type: DataTypes.STRING, primaryKey: true},
-        symbol: DataTypes.STRING,
-        decimals: DataTypes.STRING,
-        name: DataTypes.STRING,
-        amountInVault: DataTypes.NUMBER_TYPE,
-        usdcPriceInVault: DataTypes.STRING,
-    },
-    {
-        timestamps: true,
-        tableName: 'asset_prices_for_balance',
-        underscored: true,
-    }
-);
-
-const jane = asset.create({id: 'Jane'})
+// const jane = asset.create({id: 'Jane'})
 
 
 // a list for saving subscribed event instances
@@ -57,28 +66,54 @@ const subscribeLogEvent = (contract, eventName) => {
         address: contract.options.address,
         topics: [eventJsonInterface.signature]
     }, (error, result) => {
+
+        console.log(error)
+        console.log(result.data)
         if (!error) {
             const eventObj = web3.eth.abi.decodeLog(eventJsonInterface.inputs, result.data, result.topics.slice(1))
             console.log(`New ${eventName}!`, eventObj)
 
+            let data = m2m.methods.assetPricesForBalance().call();
 
-            let result = m2m.methods.assetPricesForBalance().call();
-            result.then(value => {
+            data.then(value => {
 
-                for (let i = 0; i < value.length; i++) {
+                let items = value.assetPrices;
 
-                    let element = value[i];
+                let date = new Date();
+                for (let i = 0; i < items.length; i++) {
 
-                    asset.create({
-                        symbol: element.symbol,
-                        decimals: element.decimals,
-                        name: element.name,
-                        amountInVault: element.amountInVault,
-                        usdcPriceInVault: element.usdcPriceInVault,
-                        usdcBuyPrice: element.usdcBuyPrice,
-                        usdcSellPrice: element.usdcSellPrice,
-                        usdcPriceDenominator: element.usdcPriceDenominator,
-                    });
+                    let element = items[i];
+
+                    let symbol = element.symbol;
+                    let name = element.name;
+                    let bookValue = element.amountInVault / element.usdcPriceDenominator;
+                    let liquidationValue = element.usdcPriceInVault / element.usdcPriceDenominator;
+                    let price = element.usdcBuyPrice/ element.usdcPriceDenominator;
+                    let liquidationPrice = element.usdcSellPrice / element.usdcPriceDenominator;
+                    let bookPrice = element.usdcPriceInVault / element.usdcPriceDenominator ;
+
+                    if (!bookValue)
+                        bookValue = "0";
+
+                    if (!liquidationValue)
+                        liquidationValue = "0"
+
+                    if (!bookPrice)
+                        bookPrice = "0";
+
+                    let item = {
+                        createAt: date,
+                        symbol: symbol,
+                        name: name,
+                        bookValue: bookValue,
+                        liquidationValue: liquidationValue,
+                        price: price,
+                        liquidationPrice: liquidationPrice,
+                        bookPrice: bookPrice,
+                    };
+
+                    sheet.pushToSheet(item);
+                    // asset.create(newVar);
                 }
 
             })
@@ -88,3 +123,4 @@ const subscribeLogEvent = (contract, eventName) => {
 }
 
 subscribeLogEvent(exchange, 'EventExchange')
+
