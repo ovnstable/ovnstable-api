@@ -1,29 +1,12 @@
-const Web3 = require('web3');
 let axios = require('axios');
-
-const fs = require('fs');
-
-let OverNightToken = JSON.parse(fs.readFileSync('./OvernightToken.json'));
-let Exchange = JSON.parse(fs.readFileSync('./Exchange.json'));
-let M2m = JSON.parse(fs.readFileSync('./Mark2Market.json'));
-
-let web3 = new Web3('https://polygon-mainnet.infura.io/v3/66f5eb50848f458cb0f0506cc1036fea');
-// let web3 = new Web3('http://localhost:8555');
-web3.eth.net.getId().then(value => {
-    console.log(value)
-});
-
-
-let contract = new web3.eth.Contract(OverNightToken.abi, OverNightToken.networks[137].address);
-let M2mContract = new web3.eth.Contract(M2m.abi, M2m.networks[137].address);
-let exchange = new web3.eth.Contract(Exchange.abi, Exchange.networks[137].address);
+const web3Service = require('./web3Service.js');
 
 
 async function load() {
 
-    let totalSupply = await contract.methods.totalSupply().call();
-    let totalBurn = await contract.methods.totalBurn().call();
-    let totalMint = await contract.methods.totalMint().call();
+    let totalSupply = await web3Service.ovn.methods.totalSupply().call();
+    let totalBurn = await web3Service.ovn.methods.totalBurn().call();
+    let totalMint = await web3Service.ovn.methods.totalMint().call();
 
     let request = {
         totalMint: totalMint / 10 ** 6,
@@ -36,17 +19,17 @@ async function load() {
 
 async function activePrices() {
 
-    let result = await M2mContract.methods.assetPricesForBalance().call();
+    let result = await web3Service.m2m.methods.assetPricesForBalance().call();
     return result;
 }
 
 async function payouts() {
 
-    let address = exchange.options.address;
+    let address = web3Service.exchange.options.address;
     let token = 'YZPR4G2H7JSIIPXI5NTWN5G1HDX43GSUCR';
     let topik = '0x6997cdab3aebbbb5a28dbdf7c61a3c7e9ee2c38784bbe66b9c4e58078e3b587f';
     let fromBlock = 19022018;
-    let toBlock = await web3.eth.getBlockNumber();
+    let toBlock = await web3Service.web3.eth.getBlockNumber();
 
     return axios.get(`https://api.polygonscan.com/api?module=logs&action=getLogs&fromBlock=${fromBlock}&toBlock=${toBlock}&address=${address}&topic0=${topik}&apikey=${token}`);
 
@@ -130,8 +113,8 @@ if (PRIV_KEY) {
 
 function runReward() {
 
-    let address = Exchange.networks[137].address;
-    let exchange = new web3.eth.Contract(Exchange.abi, address);
+    let exchange = web3Service.exchange;
+    let web3 = web3Service.web3;
 
     const from = "0x5CB01385d3097b6a189d1ac8BA3364D900666445" // Ovn ADMIN account
     const to = "0x3be4a04d21d9ce2b38557cb9e89a9254aee7c132" // Exchange

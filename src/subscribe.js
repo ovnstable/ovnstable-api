@@ -1,37 +1,13 @@
-const Web3 = require('web3');
-let axios = require('axios');
-
 let sheet = require('./pushToSheet.js');
-
-const fs = require('fs');
-
-let accounting = require("accounting-js")
-const e = require("express");
-let accountingConfig = {
-    symbol: "",
-    precision: 6,
-    thousand: " ",
-};
-
-let Exchange = JSON.parse(fs.readFileSync('./contracts/Exchange.json'));
-let M2m = JSON.parse(fs.readFileSync('./contracts/Mark2Market.json'));
-let Ovn = JSON.parse(fs.readFileSync('./contracts/OvernightToken.json'));
-
-// let web3 = new Web3('https://polygon-mainnet.infura.io/v3/66f5eb50848f458cb0f0506cc1036fea');
-let web3 = new Web3('ws://localhost:8555');
-web3.eth.net.getId().then(value => {
-    console.log(value)
-});
-
-
-let exchange = new web3.eth.Contract(Exchange.abi, Exchange.networks[137].address);
-let m2m = new web3.eth.Contract(M2m.abi, M2m.networks[137].address);
-let ovn = new web3.eth.Contract(Ovn.abi, Ovn.networks[137].address);
-
-
 let dataBase = require('./database.js');
+let web3Service = require('./web3Service.js');
 
-// a list for saving subscribed event instances
+
+let web3 = web3Service.web3;
+let exchange = web3Service.exchange;
+let m2m = web3Service.m2m;
+let ovn = web3Service.ovn;
+
 const subscribedEvents = {}
 
 const subscribeLogEvent = async (contract, eventName) => {
