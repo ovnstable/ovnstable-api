@@ -5,17 +5,20 @@ grant all privileges on database ovn_analytics to ovn_user;
 
 drop table if exists asset_prices_for_balance;
 create table asset_prices_for_balance (
-    id varchar primary key ,
-    block int,
+    id uuid primary key ,
+    active varchar,
+    active_name varchar,
     created_at timestamp,
     updated_at timestamp,
-    symbol varchar,
-    decimals int,
-    name varchar,
-    amount_in_vault numeric,
-    usdc_price_in_vault numeric,
-    usdc_buy_price numeric,
-    usdc_sell_price numeric,
-    usdc_price_denominator numeric
+
+    position decimal,
+    market_price decimal,
+    net_asset_value decimal,
+    liquidation_price decimal,
+    liquidation_value decimal,
+    type varchar,
+    amount decimal,
+    amount_fee decimal,
+    sender varchar
 );
 

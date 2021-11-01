@@ -1,6 +1,5 @@
 const Web3 = require('web3');
 let axios = require('axios');
-const {Sequelize, DataTypes} = require('sequelize');
 
 let sheet = require('./pushToSheet.js');
 
@@ -29,34 +28,8 @@ let exchange = new web3.eth.Contract(Exchange.abi, Exchange.networks[137].addres
 let m2m = new web3.eth.Contract(M2m.abi, M2m.networks[137].address);
 let ovn = new web3.eth.Contract(Ovn.abi, Ovn.networks[137].address);
 
-const sequelize = new Sequelize('postgres://ovn_user:ovn_password@localhost:5432/ovn_analytics')
 
-
-try {
-    sequelize.authenticate().then(value => {
-        console.log('Соединение с БД было успешно установлено')
-    })
-} catch (e) {
-    console.log('Невозможно выполнить подключение к БД: ', e)
-}
-//
-// let asset = sequelize.define('Asset', {
-//         id: {type: DataTypes.STRING, primaryKey: true},
-//         symbol: DataTypes.STRING,
-//         decimals: DataTypes.STRING,
-//         name: DataTypes.STRING,
-//         amountInVault: DataTypes.NUMBER_TYPE,
-//         usdcPriceInVault: DataTypes.STRING,
-//     },
-//     {
-//         timestamps: true,
-//         tableName: 'asset_prices_for_balance',
-//         underscored: true,
-//     }
-// );
-
-// const jane = asset.create({id: 'Jane'})
-
+let dataBase = require('./database.js');
 
 // a list for saving subscribed event instances
 const subscribedEvents = {}
@@ -126,7 +99,7 @@ function saveOvn(date, type, res){
     totalOvn.then(value => {
 
         let item = {
-            createAt: date,
+            createdAt: date,
             active: 'ovn',
             activeName: 'OvernightToken',
             position: value / 10 ** 6,
@@ -142,7 +115,7 @@ function saveOvn(date, type, res){
         };
         console.log(item)
         sheet.pushToSheet(item);
-
+        dataBase.save(item);
     })
 }
 
@@ -175,7 +148,7 @@ function saveActive(date, type, res){
                 bookPrice = "0";
 
             let item = {
-                createAt: date,
+                createdAt: date,
                 active: symbol,
                 activeName: name,
                 position: bookValue,
@@ -191,6 +164,7 @@ function saveActive(date, type, res){
 
             console.log(item)
             sheet.pushToSheet(item);
+            dataBase.save(item);
         }
 
     });
