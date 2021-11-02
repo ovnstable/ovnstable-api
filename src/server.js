@@ -63,7 +63,8 @@ server.get('/api/payouts', (req, res) => {
         payouts().then(value => {
             res.setHeader('Access-Control-Allow-Origin', '*');
             res.setHeader('Content-Type', 'application/json');
-            res.end(JSON.stringify(items.push(...value.data)));
+            items.result.push(...value.data.result)
+            res.end(JSON.stringify(items));
         });
     })
 
