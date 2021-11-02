@@ -1,12 +1,18 @@
 const axios = require("axios");
 
 
+let url = process.env.SHEET_BEST_URL;
+
 const _pushToSheet = (item) => {
 
-    axios.post('https://sheet.best/api/sheets/09902320-b5ca-4a18-abac-7c7238002f57', item).then(value => {
-    }).catch(reason => {
-        console.log('Push to sheet error: ' + reason);
-    });
+    if (url){
+        axios.post(url, item).then(value => {
+        }).catch(reason => {
+            console.log('Push to sheet error: ' + reason);
+        });
+    }else {
+        console.log('Sheet best url is undefined')
+    }
 }
 
 module.exports = {

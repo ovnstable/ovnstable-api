@@ -1,7 +1,12 @@
 const {Sequelize, DataTypes} = require('sequelize');
 
 
-const sequelize = new Sequelize('postgres://ovn_user:ovn_password@localhost:5432/ovn_analytics')
+let url = process.env.POSTGRES_CONNECT_URL;
+if (!url)
+    url= 'postgres://ovn_user:ovn_password@localhost:5432/ovn_analytics'
+
+console.log('Connect url: ' + url)
+const sequelize = new Sequelize(url)
 
 try {
     sequelize.authenticate().then(value => {
