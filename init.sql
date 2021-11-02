@@ -24,3 +24,4 @@ create table asset_prices_for_balance (
     transaction_hash varchar
 );
 
+grant all privileges on table asset_prices_for_balance to ovn_user;

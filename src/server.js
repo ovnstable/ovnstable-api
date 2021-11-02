@@ -1,6 +1,10 @@
 let axios = require('axios');
 const web3Service = require('./web3Service.js');
-
+try {
+    const subscribe = require('./subscribe.js');
+} catch (e) {
+    console.log('Не удалось запустить subscribe: '+ e)
+}
 
 async function load() {
 
@@ -23,9 +27,11 @@ async function activePrices() {
     return result;
 }
 
-async function payouts() {
+async function payouts(address) {
 
-    let address = web3Service.exchange.options.address;
+    if (!address)
+        address = web3Service.exchange.options.address;
+
     let token = 'YZPR4G2H7JSIIPXI5NTWN5G1HDX43GSUCR';
     let topik = '0x6997cdab3aebbbb5a28dbdf7c61a3c7e9ee2c38784bbe66b9c4e58078e3b587f';
     let fromBlock = 19022018;
@@ -51,11 +57,16 @@ server.get('/api/total', (req, res) => {
 
 server.get('/api/payouts', (req, res) => {
 
-    payouts().then(value => {
-        res.setHeader('Access-Control-Allow-Origin', '*');
-        res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify(value.data));
-    });
+    // Old exchange
+    payouts('0xabFa46600171d3C933206cdd8B137580217217ad').then(value => {
+        let items = value.data;
+        payouts().then(value => {
+            res.setHeader('Access-Control-Allow-Origin', '*');
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify(items.push(...value.data)));
+        });
+    })
+
 });
 
 server.get('/api/prices', (req, res) => {
