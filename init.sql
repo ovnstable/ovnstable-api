@@ -19,6 +19,8 @@ create table asset_prices_for_balance (
     type varchar,
     amount decimal,
     amount_fee decimal,
-    sender varchar
+    sender varchar,
+    balance_ovn decimal,
+    transaction_hash varchar
 );
 

@@ -23,43 +23,49 @@ const subscribeLogEvent = async (contract, eventName) => {
         console.log(result.data)
         if (!error) {
             const eventObj = web3.eth.abi.decodeLog(eventJsonInterface.inputs, result.data, result.topics.slice(1))
-            console.log(`New ${eventName}!`, eventObj)
-            let date = new Date();
-
-            if (eventName === 'EventExchange'){
-                let type = getType(eventObj);
-
-                let res = {
-                    amount: eventObj[1] /10 ** 6,
-                    amountFee: eventObj[2] /10 ** 6,
-                    sender: eventObj[3]
-                }
-
-                saveActive(date, type, res)
-                saveOvn(date, type, res)
-            }else {
-
-                let res = {
-                    amount: "0",
-                    amountFee: "0",
-                    sender:"",
-                }
-
-                saveActive(date, 'Reward', res)
-                saveOvn(date, 'Reward', res)
-            }
-
+            processEvent(result, eventName, eventObj);
         }
     })
     subscribedEvents[eventName] = subscription
 }
 
+async function processEvent(result, eventName, eventObj) {
 
-function getType(eventObject){
+    let date = new Date();
+    console.log(`New ${eventName}!`, eventObj)
+
+    if (eventName === 'EventExchange') {
+        let type = getType(eventObj);
+
+        let balanceOvn = await ovn.methods.balanceOf(eventObj[3]).call();
+        let res = {
+            amount: eventObj[1] / 10 ** 6,
+            amountFee: eventObj[2] / 10 ** 6,
+            sender: eventObj[3],
+            balanceOvn: balanceOvn / 10 ** 6
+        }
+
+        saveActive(date, type, res, result)
+        saveOvn(date, type, res, result)
+    } else {
+
+        let res = {
+            amount: "0",
+            amountFee: "0",
+            sender: "",
+            balanceOvn: "0",
+        }
+
+        saveActive(date, 'Reward', res, result)
+        saveOvn(date, 'Reward', res, result)
+    }
+}
+
+function getType(eventObject) {
 
     let type = eventObject[0];
 
-    switch (type){
+    switch (type) {
         case 'buy':
             return 'Mint';
         case 'redeem':
@@ -68,7 +74,7 @@ function getType(eventObject){
 
 }
 
-function saveOvn(date, type, res){
+function saveOvn(date, type, res, result) {
 
     let totalOvn = ovn.methods.totalSupply().call();
 
@@ -86,8 +92,9 @@ function saveOvn(date, type, res){
             type: type,
             amount: res.amount,
             amountFee: res.amountFee,
-            sender: res.sender
-
+            sender: res.sender,
+            transactionHash: result.transactionHash,
+            balanceOvn: res.balanceOvn
         };
         console.log(item)
         sheet.pushToSheet(item);
@@ -96,7 +103,7 @@ function saveOvn(date, type, res){
 }
 
 
-function saveActive(date, type, res){
+function saveActive(date, type, res, result) {
     let data = m2m.methods.assetPricesForBalance().call();
     data.then(value => {
 
@@ -110,9 +117,9 @@ function saveActive(date, type, res){
             let name = element.name;
             let bookValue = element.amountInVault / element.usdcPriceDenominator;
             let liquidationValue = element.usdcPriceInVault / element.usdcPriceDenominator;
-            let price = element.usdcBuyPrice/ element.usdcPriceDenominator;
+            let price = element.usdcBuyPrice / element.usdcPriceDenominator;
             let liquidationPrice = element.usdcSellPrice / element.usdcPriceDenominator;
-            let bookPrice = element.usdcPriceInVault / element.usdcPriceDenominator ;
+            let bookPrice = element.usdcPriceInVault / element.usdcPriceDenominator;
 
             if (!bookValue)
                 bookValue = "0";
@@ -135,7 +142,9 @@ function saveActive(date, type, res){
                 type: type,
                 amount: res.amount,
                 amountFee: res.amountFee,
-                sender: res.sender
+                sender: res.sender,
+                transactionHash: result.transactionHash,
+                balanceOvn: res.balanceOvn
             };
 
             console.log(item)
@@ -145,7 +154,6 @@ function saveActive(date, type, res){
 
     });
 }
-
 
 
 subscribeLogEvent(exchange, 'EventExchange')

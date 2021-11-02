@@ -29,7 +29,9 @@ let asset = sequelize.define('Asset', {
         type: DataTypes.STRING,
         amount: DataTypes.DECIMAL,
         amountFee: DataTypes.DECIMAL,
-        sender: DataTypes.STRING
+        sender: DataTypes.STRING,
+        balanceOvn: DataTypes.DECIMAL,
+        transactionHash: DataTypes.STRING,
     },
     {
         timestamps: true,
