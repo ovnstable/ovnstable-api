@@ -129,7 +129,7 @@ function runReward() {
     let web3 = web3Service.web3;
 
     const from = "0x5CB01385d3097b6a189d1ac8BA3364D900666445" // Ovn ADMIN account
-    const to = "0x3be4a04d21d9ce2b38557cb9e89a9254aee7c132" // Exchange
+    const to = exchange.options.address;
 
     web3.eth.getTransactionCount(from, function (err, nonce) {
 
