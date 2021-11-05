@@ -6,6 +6,8 @@ try {
     console.log('Не удалось запустить subscribe: '+ e)
 }
 
+const widget = require('./widget.js')
+
 async function load() {
 
     let totalSupply = await web3Service.ovn.methods.totalSupply().call();
@@ -54,6 +56,27 @@ server.get('/api/total', (req, res) => {
     })
 
 });
+
+server.get('/api/widget/:widgetId', (req, res) => {
+
+
+    let widgetId = req.params.widgetId;
+    switch (widgetId){
+        case 'polybor':
+            widget.polybor().then(value => {
+                res.setHeader('Access-Control-Allow-Origin', '*');
+                res.setHeader('Content-Type', 'application/json');
+                res.end(JSON.stringify(value));
+            });
+            break;
+
+        default:
+            console.log('Unknown widget id '  + widgetId)
+    }
+
+
+});
+
 
 server.get('/api/payouts', (req, res) => {
 

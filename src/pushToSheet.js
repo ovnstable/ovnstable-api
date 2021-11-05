@@ -16,6 +16,12 @@ const _pushToSheet = (item) => {
     }
 }
 
+const _pushPayout = (item) =>{
+
+
+}
+
 module.exports = {
-    pushToSheet: _pushToSheet
+    pushToSheet: _pushToSheet,
+    pushPayout: _pushPayout
 }

@@ -56,8 +56,8 @@ async function processEvent(result, eventName, eventObj) {
             balanceOvn: "0",
         }
 
-        saveActive(date, 'Reward', res, result)
-        saveOvn(date, 'Reward', res, result)
+        // saveActive(date, 'Reward', res, result)
+        // saveOvn(date, 'Reward', res, result)
     }
 }
 
