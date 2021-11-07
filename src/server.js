@@ -69,6 +69,28 @@ server.get('/api/widget/:widgetId', (req, res) => {
                 res.end(JSON.stringify(value));
             });
             break;
+        case 'polybor-week':
+            widget.polyborWeek().then(value => {
+                res.setHeader('Access-Control-Allow-Origin', '*');
+                res.setHeader('Content-Type', 'application/json');
+                res.end(JSON.stringify(value));
+            });
+            break;
+        case 'interest-rate':
+            widget.interestRate().then(value => {
+                res.setHeader('Access-Control-Allow-Origin', '*');
+                res.setHeader('Content-Type', 'application/json');
+                res.end(JSON.stringify(value));
+            });
+            break;
+        case 'distribution-rate':
+            widget.distributionRate().then(value => {
+                res.setHeader('Access-Control-Allow-Origin', '*');
+                res.setHeader('Content-Type', 'application/json');
+                res.end(JSON.stringify(value));
+            });
+            break;
+
 
         default:
             console.log('Unknown widget id '  + widgetId)
