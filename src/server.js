@@ -76,6 +76,13 @@ server.get('/api/widget/:widgetId', (req, res) => {
                 res.end(JSON.stringify(value));
             });
             break;
+        case 'polybor-weeks':
+            widget.polyborWeeks().then(value => {
+                res.setHeader('Access-Control-Allow-Origin', '*');
+                res.setHeader('Content-Type', 'application/json');
+                res.end(JSON.stringify(value));
+            });
+            break;
         case 'interest-rate':
             widget.interestRate().then(value => {
                 res.setHeader('Access-Control-Allow-Origin', '*');
