@@ -10,16 +10,16 @@ let accountingConfig = {
 
 const _polybor = async () => {
     return {
-        latest: accounting.formatMoney(12.02, accountingConfig),
-        day: accounting.formatMoney(0.49, accountingConfig),
-        week: accounting.formatMoney(-0.08, accountingConfig),
+        latest: accounting.formatMoney(11.77, accountingConfig),
+        day: accounting.formatMoney(-0.24, accountingConfig),
+        week: accounting.formatMoney(-0.26, accountingConfig),
     }
 }
 const _polyborWeek = async () => {
     return {
-        latest: accounting.formatMoney(13.64, accountingConfig),
-        day: accounting.formatMoney(-0.61, accountingConfig),
-        week: accounting.formatMoney(-4.38, accountingConfig),
+        latest: accounting.formatMoney(13.60, accountingConfig),
+        day: accounting.formatMoney(-0.05, accountingConfig),
+        week: accounting.formatMoney(-4.09, accountingConfig),
     }
 }
 
@@ -43,7 +43,8 @@ const _interestRate = async () => {
         {"date": "05-Nov", "value": 9.99716},
         {"date": "06-Nov", "value": 10.70502},
         {"date": "07-Nov", "value": 11.52507},
-        {"date": "08-Nov", "value": 12.01926}
+        {"date": "08-Nov", "value": 12.01926},
+        {"date": "09-Nov", "value": 11.77487}
     ]
 
 
@@ -78,18 +79,18 @@ const _polyborWeeks = async () => {
         {
             id: 1,
             label: 'PoLybor Overnight',
-            latest: 12.02,
-            weekAgo: 12.10,
+            latest: 11.77,
+            weekAgo: 12.03,
             high: 19.17,
             low: 10.00,
         },
         {
             id: 2,
             label: 'PoLybor Overnight 1-Week average',
-            latest: 13.64,
-            weekAgo: 18.02,
+            latest: 13.60,
+            weekAgo: 17.68,
             high: 18.97,
-            low: 13.64,
+            low: 13.60,
         },
     ]
 }
