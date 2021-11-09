@@ -1,5 +1,7 @@
 let accounting = require('accounting-js');
-let moment = require('moment')
+let moment = require('moment');
+const pushToSheet = require('./pushToSheet.js');
+const dataBase = require('./database.js');
 
 let accountingConfig = {
     symbol: "",
@@ -51,26 +53,7 @@ const _interestRate = async () => {
 }
 
 const _distributionRate = async () => {
-
-    return [
-        {"label": "-6%", "normalDist": 0, "ovnDist": 0},
-        {"label": "-4%", "normalDist": 0, "ovnDist": 0},
-        {"label": "-2%", "normalDist": 0, "ovnDist": 0},
-        {"label": "0", "normalDist": 0, "ovnDist": 0},
-        {"label": "2%", "normalDist": 0.001, "ovnDist": 0},
-        {"label": "4%", "normalDist": 0.015, "ovnDist": 0},
-        {"label": "6%", "normalDist": 0.20500000000000002, "ovnDist": 0},
-        {"label": "8%", "normalDist": 1.636, "ovnDist": 5.88},
-        {"label": "10%", "normalDist": 7.477, "ovnDist": 11.76},
-        {"label": "12%", "normalDist": 19.57, "ovnDist": 17.65},
-        {"label": "14%", "normalDist": 29.348999999999997, "ovnDist": 29.41},
-        {"label": "16%", "normalDist": 25.215, "ovnDist": 17.65},
-        {"label": "18%", "normalDist": 12.411999999999999, "ovnDist": 17.65},
-        {"label": "20%", "normalDist": 3.5000000000000004, "ovnDist": 0},
-        {"label": "22%", "normalDist": 0.565, "ovnDist": 0},
-        {"label": "24%", "normalDist": 0.052, "ovnDist": 0},
-        {"label": "26%", "normalDist": 0.003, "ovnDist": 0},
-        {"label": "28%", "normalDist": 0, "ovnDist": 0}]
+   return dataBase.getWidgetDistributionRates();
 }
 
 const _polyborWeeks = async () => {
@@ -95,12 +78,31 @@ const _polyborWeeks = async () => {
     ]
 }
 
+const _updateWidgetFromSheet = () =>{
+
+    console.log('Run loading widget data from sheet ')
+
+    pushToSheet.getDistributionRates().then(value => {
+
+        for (let i = 0; i < value.length; i++) {
+            let element = value[i];
+            element.ovnDist = element.ovnDist.replace(/%/g,"");
+            element.normalDist = element.normalDist * 100;
+        }
+
+        dataBase.saveWidgetDistributionRates(value);
+    });
+
+}
+
+
 module.exports = {
     polybor: _polybor,
     polyborWeek: _polyborWeek,
     polyborWeeks: _polyborWeeks,
     interestRate: _interestRate,
     distributionRate: _distributionRate,
-
+    updateWidgetFromSheet: _updateWidgetFromSheet,
 }
+
 

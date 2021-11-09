@@ -24,3 +24,4 @@ yarn-error.log*
 *.sw?
 .run/deploy.run.xml
 contracts/
+/.run/server-local.run.xml

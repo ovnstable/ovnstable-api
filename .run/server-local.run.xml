@@ -1,8 +1,0 @@
-<component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="server-local" type="NodeJSConfigurationType" path-to-js-file="src/server.js" working-dir="$PROJECT_DIR$">
-    <envs>
-      <env name="WEB3_URL" value="ws://localhost:8555" />
-    </envs>
-    <method v="2" />
-  </configuration>
-</component>

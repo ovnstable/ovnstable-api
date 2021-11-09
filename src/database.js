@@ -46,12 +46,49 @@ let asset = sequelize.define('Asset', {
 );
 
 
+let distributionRateEntity = sequelize.define('WidgetDistributionRate', {
+        label: {
+            type: Sequelize.STRING,
+            allowNull: false,
+            primaryKey: true
+        },
+        normalDist: DataTypes.DECIMAL,
+        ovnDist: DataTypes.DECIMAL,
+    },
+    {
+        timestamps: true,
+        tableName: 'distribution_rate',
+        schema: 'widget',
+        underscored: true,
+    }
+);
+
+
 const saveToDatabase = (item) => {
     asset.create(item);
 }
-module.exports = {
-   save: saveToDatabase
+
+
+const  _saveWidgetDistributionRates = (items) => {
+
+    distributionRateEntity.destroy({
+        where: {},
+        truncate: true
+    });
+
+    distributionRateEntity.bulkCreate(items);
 }
+
+const _getWidgetDistributionRates = () => {
+    return distributionRateEntity.findAll();
+};
+
+module.exports = {
+   save: saveToDatabase,
+    saveWidgetDistributionRates: _saveWidgetDistributionRates,
+    getWidgetDistributionRates: _getWidgetDistributionRates,
+}
+
 
 
 

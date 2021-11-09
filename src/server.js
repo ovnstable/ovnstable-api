@@ -8,6 +8,8 @@ try {
 
 const widget = require('./widget.js')
 
+// const analytic = require('./analytic')
+
 async function load() {
 
     let totalSupply = await web3Service.ovn.methods.totalSupply().call();
@@ -56,6 +58,11 @@ server.get('/api/total', (req, res) => {
     })
 
 });
+
+
+server.get('/api/update-widgets', () =>{
+    widget.updateWidgetFromSheet();
+})
 
 server.get('/api/widget/:widgetId', (req, res) => {
 
@@ -213,4 +220,36 @@ function runReward() {
 }
 
 
+let inputs =  [
+        {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "totalOvn",
+            "type": "uint256"
+        },
+        {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "totalUsdc",
+            "type": "uint256"
+        },
+        {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "totallyAmountRewarded",
+            "type": "uint256"
+        },
+        {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "totallySaved",
+            "type": "uint256"
+        }
+    ],
 
+
+
+
+decodeParameters = web3Service.web3.eth.abi.decodeParameters(inputs, '0x0000000000000000000000000000000000000000000000000000000002f911840000000000000000000000000000000000000000000000000000000002f9195700000000000000000000000000000000000000000000000000000000000007d20000000000000000000000000000000000000000000000000000000000000001');
+
+console.log(decodeParameters)
