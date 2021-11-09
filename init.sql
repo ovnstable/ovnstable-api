@@ -60,4 +60,42 @@ create table widget.interest_rate
     value decimal,
     created_at timestamp,
     updated_at timestamp
-)
+);
+
+drop table if exists widget.polybor_weeks_table;
+create table widget.polybor_weeks_table
+(
+    id uuid primary key ,
+    label varchar,
+    latest decimal,
+    week_ago decimal,
+    high decimal,
+    low decimal,
+    created_at timestamp,
+    updated_at timestamp
+);
+
+drop table if exists widget.polybor_week;
+create table widget.polybor_week
+(
+    id uuid primary key ,
+    latest decimal,
+    week decimal,
+    day decimal,
+    created_at timestamp,
+    updated_at timestamp
+);
+
+drop table if exists widget.polybor;
+create table widget.polybor
+(
+    id uuid primary key ,
+    latest decimal,
+    week decimal,
+    day decimal,
+    created_at timestamp,
+    updated_at timestamp
+);
+
+
+

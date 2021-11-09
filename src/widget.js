@@ -11,23 +11,27 @@ let accountingConfig = {
 
 
 const _polybor = async () => {
-    return {
-        latest: accounting.formatMoney(11.77, accountingConfig),
-        day: accounting.formatMoney(-0.24, accountingConfig),
-        week: accounting.formatMoney(-0.26, accountingConfig),
-    }
+    return dataBase.getWidgetPolybor().then(value => {
+        return {
+            latest: accounting.formatMoney(value.latest, accountingConfig),
+            day: accounting.formatMoney(value.day, accountingConfig),
+            week: accounting.formatMoney(value.week, accountingConfig),
+        }
+    });
 }
 const _polyborWeek = async () => {
-    return {
-        latest: accounting.formatMoney(13.60, accountingConfig),
-        day: accounting.formatMoney(-0.05, accountingConfig),
-        week: accounting.formatMoney(-4.09, accountingConfig),
-    }
+
+    return dataBase.getWidgetPolyborWeek().then(value => {
+        return {
+            latest: accounting.formatMoney(value.latest, accountingConfig),
+            day: accounting.formatMoney(value.day, accountingConfig),
+            week: accounting.formatMoney(value.week, accountingConfig),
+        }
+    });
 }
 
 const _interestRate = async () => {
     return (await dataBase.getWidgetInterestRates()).map(value => {
-
         return {
             date: value.date,
             value: value.value,
@@ -42,24 +46,15 @@ const _distributionRate = async () => {
 
 const _polyborWeeks = async () => {
 
-    return [
-        {
-            id: 1,
-            label: 'PoLybor Overnight',
-            latest: 11.77,
-            weekAgo: 12.03,
-            high: 19.17,
-            low: 10.00,
-        },
-        {
-            id: 2,
-            label: 'PoLybor Overnight 1-Week average',
-            latest: 13.60,
-            weekAgo: 17.68,
-            high: 18.97,
-            low: 13.60,
-        },
-    ]
+    return (await dataBase.getWidgetPolyborWeeksTable()).map(value => {
+        return {
+            label: value.label,
+            latest: value.latest,
+            weekAgo: value.weekAgo,
+            high: value.high,
+            low: value.low,
+        }
+    });
 }
 
 const _updateWidgetFromSheet = () => {
@@ -88,11 +83,52 @@ const _updateWidgetFromSheet = () => {
             element.value = parseFloat(element.value.replace(/%/g, ""));
         }
 
-        dataBase.saveWidgetInterestRates(value).catch(reason => {
+        dataBase.saveWidgetInterestRates(value.reverse()).catch(reason => {
             console.log(reason)
         });
 
     });
+
+
+    pushToSheet.getPolyborTable().then(value => {
+
+        for (let i = 0; i < value.length; i++) {
+            let element = value[i];
+            element.latest = parseFloat(element.latest.replace(/%/g, ""));
+            element.weekAgo = parseFloat(element.weekAgo.replace(/%/g, ""));
+            element.high = parseFloat(element.high.replace(/%/g, ""));
+            element.low = parseFloat(element.low.replace(/%/g, ""));
+        }
+
+        dataBase.saveWidgetPolyborWeeksTable(value).catch(reason => {
+            console.log(reason)
+        });
+
+    });
+
+
+    pushToSheet.getPolybor().then(value => {
+
+        for (let i = 0; i < value.length; i++) {
+            let element = value[i];
+            element.latest = parseFloat(element.latest.replace(/%/g, ""));
+            element.week= parseFloat(element.week.replace(/%/g, ""));
+            element.day = parseFloat(element.day.replace(/%/g, ""));
+        }
+
+
+        let find = value.find(item => item.type === 'polybor');
+        dataBase.saveWidgetPolybor([find]).catch(reason => {
+            console.log(reason)
+        });
+
+        find = value.find(item => item.type === 'polybor-week');
+        dataBase.saveWidgetPolyborWeek([find]).catch(reason => {
+            console.log(reason)
+        })
+
+    });
+
 
 }
 

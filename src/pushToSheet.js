@@ -17,14 +17,8 @@ const _pushToSheet = (item) => {
     }
 }
 
-const _pushPayout = (item) =>{
-
-
-}
-
 
 const _getInterestRates = ()=>{
-
 
     console.log('Get interest rates ')
     return  axios.get(url + '/tabs/Interest Rate - API').then(value => {
@@ -39,11 +33,27 @@ const _getDistributionRates = ()=>{
     })
 };
 
+const _getPolybor= ()=>{
+    console.log('Get polybor')
+    return  axios.get(url + '/tabs/Polybor - API').then(value => {
+        return value.data;
+    })
+};
+
+
+const _getPolyborTable= ()=>{
+    console.log('Get polybor table')
+    return  axios.get(url + '/tabs/Polybor Talbe - API').then(value => {
+        return value.data;
+    })
+};
+
+
 
 
 module.exports = {
-    pushToSheet: _pushToSheet,
-    pushPayout: _pushPayout,
     getDistributionRates: _getDistributionRates,
     getInterestRates: _getInterestRates,
+    getPolybor: _getPolybor,
+    getPolyborTable: _getPolyborTable,
 }
