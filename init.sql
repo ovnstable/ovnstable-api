@@ -49,4 +49,15 @@ create table widget.distribution_rate
     ovn_dist    decimal,
     created_at timestamp,
     updated_at timestamp
+);
+
+
+drop table if exists widget.interest_rate;
+create table widget.interest_rate
+(
+    id uuid primary key ,
+    date varchar,
+    value decimal,
+    created_at timestamp,
+    updated_at timestamp
 )

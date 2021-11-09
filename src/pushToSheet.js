@@ -24,13 +24,17 @@ const _pushPayout = (item) =>{
 
 
 const _getInterestRates = ()=>{
-    return  axios.get(url + '/tabs/Polybor Overnight time time graph').then(value => {
+
+
+    console.log('Get interest rates ')
+    return  axios.get(url + '/tabs/Interest Rate - API').then(value => {
         return value.data;
     })
 };
 
 const _getDistributionRates = ()=>{
-   return  axios.get(url + '/tabs/Distribution Rate - API').then(value => {
+    console.log('Get distribution rates ')
+    return  axios.get(url + '/tabs/Distribution Rate - API').then(value => {
         return value.data;
     })
 };
@@ -41,4 +45,5 @@ module.exports = {
     pushToSheet: _pushToSheet,
     pushPayout: _pushPayout,
     getDistributionRates: _getDistributionRates,
+    getInterestRates: _getInterestRates,
 }

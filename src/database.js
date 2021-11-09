@@ -3,7 +3,7 @@ const {Sequelize, DataTypes} = require('sequelize');
 
 let url = process.env.POSTGRES_CONNECT_URL;
 if (!url)
-    url= 'postgres://ovn_user:ovn_password@localhost:5432/ovn_analytics'
+    url= 'postgres://postgres:@localhost:5432/ovn_analytics'
 
 console.log('Connect url: ' + url)
 const sequelize = new Sequelize(url)
@@ -64,29 +64,51 @@ let distributionRateEntity = sequelize.define('WidgetDistributionRate', {
 );
 
 
-const saveToDatabase = (item) => {
-    asset.create(item);
-}
+
+let interestRateEntity = sequelize.define('WidgetInterestRate', {
+        id: {
+            type: Sequelize.UUID,
+            defaultValue: Sequelize.UUIDV4,
+            allowNull: false,
+            primaryKey: true
+        },
+        value: DataTypes.DECIMAL,
+        date: DataTypes.STRING,
+    },
+    {
+        timestamps: true,
+        tableName: 'interest_rate',
+        schema: 'widget',
+        underscored: true,
+    }
+);
 
 
 const  _saveWidgetDistributionRates = (items) => {
-
-    distributionRateEntity.destroy({
+    return distributionRateEntity.destroy({
         where: {},
         truncate: true
+    }).then(value => {
+        return distributionRateEntity.bulkCreate(items);
     });
-
-    distributionRateEntity.bulkCreate(items);
 }
 
-const _getWidgetDistributionRates = () => {
-    return distributionRateEntity.findAll();
-};
+const  _saveWidgetInterestRates = (items) => {
+    return interestRateEntity.destroy({
+        where: {},
+        truncate: true
+    }).then(value => {
+        return interestRateEntity.bulkCreate(items);
+    });
+}
+
+
 
 module.exports = {
-   save: saveToDatabase,
     saveWidgetDistributionRates: _saveWidgetDistributionRates,
-    getWidgetDistributionRates: _getWidgetDistributionRates,
+    saveWidgetInterestRates: _saveWidgetInterestRates,
+    getWidgetDistributionRates: ()=>distributionRateEntity.findAll(),
+    getWidgetInterestRates: ()=> interestRateEntity.findAll(),
 }
 
 
