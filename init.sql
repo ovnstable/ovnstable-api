@@ -98,4 +98,29 @@ create table widget.polybor
 );
 
 
+drop table if exists anal.payouts;
+create table anal.payouts
+(
+    transaction_hash varchar primary key ,
+    block int,
+    payable_date timestamp,
+    total_ovn decimal,
+    total_usdc decimal,
+    totally_amount_rewarded decimal,
+    totally_saved decimal,
+    daily_profit decimal,
+    elapsed_time decimal,
+    annualized_yield decimal,
+    sender varchar,
+    created_at timestamp
+);
 
+
+drop table if exists anal.total_ovn;
+create table anal.total_ovn
+(
+    minted decimal,
+    circulation decimal,
+    burn decimal,
+    date timestamp primary key
+);

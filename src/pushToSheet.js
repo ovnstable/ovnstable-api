@@ -4,11 +4,11 @@ const {getDistributionRates} = require("./pushToSheet");
 
 let url = process.env.SHEET_BEST_URL;
 
-const _pushToSheet = (item) => {
+const _pushToSheet = (item, tabId) => {
 
     if (url){
         console.log('Push item to sheet-best: '+ item)
-        axios.post(url, item).then(value => {
+        axios.post(url+'/tabs/' + tabId, item).then(value => {
         }).catch(reason => {
             console.log('Push to sheet error: ' + reason);
         });
@@ -52,6 +52,7 @@ const _getPolyborTable= ()=>{
 
 
 module.exports = {
+    pushToSheet: _pushToSheet,
     getDistributionRates: _getDistributionRates,
     getInterestRates: _getInterestRates,
     getPolybor: _getPolybor,

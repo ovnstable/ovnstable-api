@@ -190,6 +190,7 @@ const  _saveWidgetPolyborWeeksTable = (items) => {
 
 
 module.exports = {
+    sequelize: sequelize,
     saveWidgetDistributionRates: _saveWidgetDistributionRates,
     saveWidgetInterestRates: _saveWidgetInterestRates,
     saveWidgetPolybor: _saveWidgetPolybor,

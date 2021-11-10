@@ -1,14 +1,11 @@
 let axios = require('axios');
 const web3Service = require('./web3Service.js');
-try {
-    const subscribe = require('./subscribe.js');
-} catch (e) {
-    console.log('Не удалось запустить subscribe: '+ e)
-}
 
 const widget = require('./widget.js')
 
-// const analytic = require('./analytic')
+const test = require('./anal/payouts');
+
+test.loadPayouts();
 
 async function load() {
 
@@ -116,15 +113,12 @@ server.get('/api/widget/:widgetId', (req, res) => {
 
 server.get('/api/payouts', (req, res) => {
 
-    // Old exchange
-    payouts('0xabFa46600171d3C933206cdd8B137580217217ad').then(value => {
-        let items = value.data;
-        payouts().then(value => {
-            res.setHeader('Access-Control-Allow-Origin', '*');
-            res.setHeader('Content-Type', 'application/json');
-            items.result.push(...value.data.result)
-            res.end(JSON.stringify(items));
-        });
+
+    test.getPayouts(10).then(value => {
+
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify(value));
     })
 
 });

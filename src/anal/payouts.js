@@ -1,0 +1,165 @@
+const axios = require('axios');
+
+const web3Service = require('../web3Service');
+const fs = require("fs");
+const moment = require("moment");
+const {toFixed} = require("accounting-js");
+const {pushToSheet} = require("../pushToSheet");
+const {sequelize} = require("../database");
+const { DataTypes} = require("sequelize");
+
+
+let payoutEntity = sequelize.define('PayoutEntity', {
+        transactionHash: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            primaryKey: true
+        },
+        block: DataTypes.INTEGER,
+        payableDate: DataTypes.DATE,
+        totalOvn: DataTypes.DECIMAL,
+        totalUsdc: DataTypes.DECIMAL,
+        totallyAmountRewarded: DataTypes.DECIMAL,
+        totallySaved: DataTypes.DECIMAL,
+        dailyProfit: DataTypes.DECIMAL,
+        elapsedTime: DataTypes.DECIMAL,
+        annualizedYield: DataTypes.DECIMAL,
+        sender: DataTypes.STRING,
+
+    },
+    {
+        timestamps: true,
+        tableName: 'payouts',
+        schema: 'anal',
+        underscored: true,
+        updatedAt: false,
+    }
+);
+
+
+let rewardEvent = web3Service.exchangeJSON.abi.find(value => value.name === 'RewardEvent');
+let lastDateFromPayouts;
+
+async function getItems() {
+
+    let query = await sequelize.query("select * from anal.payouts order by block desc limit 1");
+
+    let API_KEY = 'ckey_3a2959d0ef4b489ea62c0473214';
+    let topic = rewardEvent.signature;
+
+    let startBlock;
+    if (query[0][0]) {
+        startBlock = query[0][0].block + 1;
+        lastDateFromPayouts = query[0][0].payable_date;
+    } else {
+        startBlock = 20432146;
+    }
+    let endBlock = await web3Service.web3.eth.getBlockNumber();
+    let url = `https://api.covalenthq.com/v1/137/events/topics/${topic}/\?starting-block\=${startBlock}\&ending-block\=${endBlock}\&key\=${API_KEY}`
+
+    let items = await axios.get(url).then(value => {
+        return value.data.data.items;
+    }).catch(reason => {
+        console.log(reason);
+        throw 'Не удалось выгрузить данные';
+    });
+
+    return items;
+}
+
+
+
+
+function addToSheet(items){
+    if (items.length > 0){
+        let results = [];
+        items.forEach(value => {
+
+            let item = {
+                payableDate: value.payableDate,
+                dailyProfit: value.dailyProfit,
+                elapsedTime: value.elapsedTime,
+                annualizedYield: value.annualizedYield
+            };
+            results.push(item)
+        })
+
+        pushToSheet(results, 'Data API')
+
+    }
+}
+
+
+
+const getRewardEvent = (items) => {
+
+    let result = [];
+
+    let lastDate = null;
+
+    items.forEach((item) => {
+
+
+        let parameters = web3Service.web3.eth.abi.decodeParameters(rewardEvent.inputs, item.raw_log_data);
+
+        let log = {};
+
+        log.block = item.block_height;
+        log.transactionHash = item.tx_hash;
+        log.payableDate = new Date(item.block_signed_at);
+        log.sender = item.sender_address;
+        log.totalOvn = parameters.totalOvn / 10 ** 6;
+        log.totalUsdc = parameters.totalUsdc / 10 ** 6;
+        log.totallyAmountRewarded = parameters.totallyAmountRewarded / 10 ** 6;
+        log.totallySaved = parameters.totallySaved / 10 ** 6;
+        log.dailyProfit = Number.parseFloat(toFixed(log.totallyAmountRewarded / log.totalOvn, 6));
+
+        if (items.length === 1){
+            lastDate = lastDateFromPayouts;
+        }
+
+        if (lastDate) {
+            log.elapsedTime = Number.parseFloat(diff_hours(log.payableDate, lastDate));
+        }
+
+        lastDate = log.payableDate;
+
+        if (log.elapsedTime)
+            log.annualizedYield = (((log.dailyProfit / log.elapsedTime + 1) ** (365 * 24) - 1)) * 100;
+
+
+        result.push(log)
+    })
+
+    return result;
+}
+
+function diff_hours(dt2, dt1) {
+    let duration = moment.duration(moment(dt2).diff(moment(dt1)));
+    return duration.asHours();
+}
+
+
+function _loadItems(){
+    getItems().then(value => {
+
+        let items = getRewardEvent(value);
+
+        payoutEntity.bulkCreate(items).then(()=> {
+            addToSheet(items)
+        }).catch(reason => {
+            console.log(reason)
+        });
+
+    })
+
+}
+
+function _getPayouts(limit){
+    return sequelize.query(`select * from anal.payouts order by block desc limit ${limit}`);
+}
+
+module.exports = {
+    loadPayouts: _loadItems,
+    getPayouts: _getPayouts,
+}
