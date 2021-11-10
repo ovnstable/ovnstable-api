@@ -3,9 +3,8 @@ const web3Service = require('./web3Service.js');
 
 const widget = require('./widget.js')
 
-const test = require('./anal/payouts');
+const payouts = require('./payouts');
 
-test.loadPayouts();
 
 async function load() {
 
@@ -28,19 +27,7 @@ async function activePrices() {
     return result;
 }
 
-async function payouts(address) {
 
-    if (!address)
-        address = web3Service.exchange.options.address;
-
-    let token = 'YZPR4G2H7JSIIPXI5NTWN5G1HDX43GSUCR';
-    let topik = '0x6997cdab3aebbbb5a28dbdf7c61a3c7e9ee2c38784bbe66b9c4e58078e3b587f';
-    let fromBlock = 19022018;
-    let toBlock = await web3Service.web3.eth.getBlockNumber();
-
-    return axios.get(`https://api.polygonscan.com/api?module=logs&action=getLogs&fromBlock=${fromBlock}&toBlock=${toBlock}&address=${address}&topic0=${topik}&apikey=${token}`);
-
-}
 
 const express = require('express')
 const server = express()
@@ -56,6 +43,9 @@ server.get('/api/total', (req, res) => {
 
 });
 
+server.get('/api/load-payouts', () => {
+    payouts.loadPayouts();
+})
 
 server.get('/api/update-widgets', () =>{
     widget.updateWidgetFromSheet();
@@ -114,7 +104,17 @@ server.get('/api/widget/:widgetId', (req, res) => {
 server.get('/api/payouts', (req, res) => {
 
 
-    test.getPayouts(10).then(value => {
+    payouts.getPayouts(10).then(value => {
+
+        value = value.map(item => {
+
+            return {
+                transactionHash: item.transaction_hash,
+                payableDate: item.payable_date,
+                dailyProfit: item.daily_profit,
+                annualizedYield: item.annualized_yield,
+            }
+        })
 
         res.setHeader('Access-Control-Allow-Origin', '*');
         res.setHeader('Content-Type', 'application/json');
@@ -162,7 +162,7 @@ var cron = require('node-cron');
 console.log('Start Cron')
 
 cron.schedule('59 23 * * *', () => {
-    console.log('Run cron');
+    console.log('Run cron reward');
     runReward();
 });
 
@@ -203,6 +203,12 @@ function runReward() {
             const sentTx = web3.eth.sendSignedTransaction(value.raw || value.rawTransaction);
             sentTx.on("receipt", receipt => {
                 console.log(receipt);
+
+                setTimeout(args => {
+                    payouts.loadPayouts().then(value => {
+                        widget.updateWidgetFromSheet();
+                    })
+                }, 5 * 60 * 1000) // 5 minutes
             });
             sentTx.on("error", err => {
                 console.log(err);

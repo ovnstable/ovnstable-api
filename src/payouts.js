@@ -1,13 +1,12 @@
 const axios = require('axios');
 
-const web3Service = require('../web3Service');
+const web3Service = require('./web3Service');
 const fs = require("fs");
 const moment = require("moment");
 const {toFixed} = require("accounting-js");
-const {pushToSheet} = require("../pushToSheet");
-const {sequelize} = require("../database");
+const {pushToSheet} = require("./pushToSheet");
+const {sequelize} = require("./database");
 const { DataTypes} = require("sequelize");
-
 
 let payoutEntity = sequelize.define('PayoutEntity', {
         transactionHash: {
@@ -50,7 +49,8 @@ async function getItems() {
     let startBlock;
     if (query[0][0]) {
         startBlock = query[0][0].block + 1;
-        lastDateFromPayouts = query[0][0].payable_date;
+        lastDateFromPayouts = moment.utc(query[0][0].payable_date.toString().slice(0, 24))
+        ;
     } else {
         startBlock = 20432146;
     }
@@ -71,12 +71,12 @@ async function getItems() {
 
 
 function addToSheet(items){
-    if (items.length > 0){
+    if (items.length > 0) {
         let results = [];
         items.forEach(value => {
 
             let item = {
-                payableDate: value.payableDate,
+                payableDate: value.payableDate.format('MM/DD/YYYY hh:mm:ss'),
                 dailyProfit: value.dailyProfit,
                 elapsedTime: value.elapsedTime,
                 annualizedYield: value.annualizedYield
@@ -106,7 +106,7 @@ const getRewardEvent = (items) => {
 
         log.block = item.block_height;
         log.transactionHash = item.tx_hash;
-        log.payableDate = new Date(item.block_signed_at);
+        log.payableDate = moment.utc(item.block_signed_at);
         log.sender = item.sender_address;
         log.totalOvn = parameters.totalOvn / 10 ** 6;
         log.totalUsdc = parameters.totalUsdc / 10 ** 6;
@@ -135,28 +135,29 @@ const getRewardEvent = (items) => {
 }
 
 function diff_hours(dt2, dt1) {
-    let duration = moment.duration(moment(dt2).diff(moment(dt1)));
+    let duration = moment.duration(moment.utc(dt2).diff(moment.utc(dt1)));
     return duration.asHours();
 }
 
 
 function _loadItems(){
-    getItems().then(value => {
+    return getItems().then(value => {
 
         let items = getRewardEvent(value);
 
-        payoutEntity.bulkCreate(items).then(()=> {
-            addToSheet(items)
+        return payoutEntity.bulkCreate(items).then(()=> {
+            return addToSheet(items)
         }).catch(reason => {
             console.log(reason)
         });
-
     })
 
 }
 
 function _getPayouts(limit){
-    return sequelize.query(`select * from anal.payouts order by block desc limit ${limit}`);
+    return sequelize.query(`select * from anal.payouts order by block desc limit ${limit}`).then(value => {
+        return value[0];
+    });
 }
 
 module.exports = {

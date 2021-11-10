@@ -103,7 +103,7 @@ create table anal.payouts
 (
     transaction_hash varchar primary key ,
     block int,
-    payable_date timestamp,
+    payable_date timestamp without time zone,
     total_ovn decimal,
     total_usdc decimal,
     totally_amount_rewarded decimal,
