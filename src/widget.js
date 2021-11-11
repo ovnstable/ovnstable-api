@@ -2,6 +2,7 @@ let accounting = require('accounting-js');
 let moment = require('moment');
 const pushToSheet = require('./pushToSheet.js');
 const dataBase = require('./database.js');
+const e = require("express");
 
 let accountingConfig = {
     symbol: "",
@@ -78,12 +79,17 @@ const _updateWidgetFromSheet = () => {
 
     pushToSheet.getInterestRates().then(value => {
 
+        let results = [];
         for (let i = 0; i < value.length; i++) {
             let element = value[i];
-            element.value = parseFloat(element.value.replace(/%/g, ""));
+
+            if (element.value){
+                element.value = parseFloat(element.value.replace(/%/g, ""));
+                results.push(element);
+            }
         }
 
-        dataBase.saveWidgetInterestRates(value.reverse()).catch(reason => {
+        dataBase.saveWidgetInterestRates(results.reverse()).catch(reason => {
             console.log(reason)
         });
 
