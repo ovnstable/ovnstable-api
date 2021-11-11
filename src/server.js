@@ -166,6 +166,15 @@ cron.schedule('59 23 * * *', () => {
     runReward();
 });
 
+cron.schedule('59 4 * * *', () => {
+
+    console.log('Run cron - Update Widget and load payouts')
+    payouts.loadPayouts().then(value => {
+        widget.updateWidgetFromSheet();
+    })
+
+});
+
 
 const PRIV_KEY = process.env.pk
 
@@ -203,17 +212,13 @@ function runReward() {
             const sentTx = web3.eth.sendSignedTransaction(value.raw || value.rawTransaction);
             sentTx.on("receipt", receipt => {
                 console.log(receipt);
-
-                setTimeout(args => {
-                    payouts.loadPayouts().then(value => {
-                        widget.updateWidgetFromSheet();
-                    })
-                }, 5 * 60 * 1000) // 5 minutes
             });
             sentTx.on("error", err => {
                 console.log(err);
             });
         });
+
+
 
     });
 

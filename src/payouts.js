@@ -76,7 +76,7 @@ function addToSheet(items){
         items.forEach(value => {
 
             let item = {
-                payableDate: value.payableDate.format('MM/DD/YYYY hh:mm:ss'),
+                payableDate: value.payableDate.format('MM/DD/YYYY HH:mm:ss'),
                 dailyProfit: value.dailyProfit,
                 elapsedTime: value.elapsedTime,
                 annualizedYield: value.annualizedYield
