@@ -5,6 +5,7 @@ const axios = require("axios");
 let log = require('log');
 
 const payouts = require('./payouts.js');
+const mintRedeem = require('./mintRedeem.js');
 const web3Service = require('./web3Service.js');
 const googleSheet = require('./pushToSheet.js');
 
@@ -185,6 +186,42 @@ async function getAm3CRV(blocks) {
 
 
 
+async function uploadMintRedeem(){
+
+
+    mintRedeem.getRecords(1000).then(value => {
+
+        let blocks = [];
+
+        for (let i = 0; i < value.length; i++) {
+            let element = value[i];
+
+            blocks.push({
+                block: element.block,
+                transactionHash: element.transaction_hash,
+                date: element.date,
+                type: element.type,
+                value: element.value,
+            })
+        }
+
+        getWmatic(blocks).then(value => {
+            m2mEntity.bulkCreate(value);
+        });
+
+        getCRV(blocks).then(value => {
+            m2mEntity.bulkCreate(value)
+        });
+
+        getAm3CRVGauge(blocks).then(value => {
+            m2mEntity.bulkCreate(value);
+        });
+
+        getAm3CRV(blocks).then(value => {
+            m2mEntity.bulkCreate(value);
+        });
+    })
+}
 
 async function uploadPayouts(){
 
@@ -222,9 +259,9 @@ async function uploadPayouts(){
 
     });
 
-    // pushToSheet();
 
 }
+
 
 async function pushToSheet(){
 
@@ -240,4 +277,5 @@ async function pushToSheet(){
     })
 
 }
+
 
