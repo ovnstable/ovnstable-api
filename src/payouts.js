@@ -49,7 +49,7 @@ async function getItems() {
     let startBlock;
     if (query[0][0]) {
         startBlock = query[0][0].block + 1;
-        lastDateFromPayouts = moment.utc(query[0][0].payable_date.toString().slice(0, 24))
+        lastDateFromPayouts = moment.utc(new Date(query[0][0].payable_date.toString().slice(0, 24)));
         ;
     } else {
         startBlock = 20432146;
@@ -156,7 +156,17 @@ function _loadItems(){
 
 function _getPayouts(limit){
     return sequelize.query(`select * from anal.payouts order by block desc limit ${limit}`).then(value => {
-        return value[0];
+
+        let array = value[0];
+
+        if (array){
+            for (let i = 0; i <array.length ; i++) {
+                let element = array[i];
+                element.payable_date = moment.utc(new Date(element.payable_date.toString().slice(0, 24)))
+            }
+        }
+
+        return array;
     });
 }
 

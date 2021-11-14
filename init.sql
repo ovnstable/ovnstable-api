@@ -124,3 +124,22 @@ create table anal.total_ovn
     burn decimal,
     date timestamp primary key
 );
+
+
+drop table if exists anal.m2m;
+create table anal.m2m
+(
+    id uuid primary key ,
+    block int,
+    active varchar,
+    type varchar,
+    value decimal,
+    created_at timestamp,
+    position decimal,
+    market_price decimal,
+    net_asset_value decimal,
+    liquidation_price decimal,
+    liquidation_value decimal,
+    date timestamp,
+    transaction_hash varchar
+);
