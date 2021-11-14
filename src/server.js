@@ -1,6 +1,8 @@
 let axios = require('axios');
 const web3Service = require('./web3Service.js');
 
+let log = require('log');
+
 const widget = require('./widget.js')
 
 const payouts = require('./payouts');
@@ -94,7 +96,7 @@ server.get('/api/widget/:widgetId', (req, res) => {
 
 
         default:
-            console.log('Unknown widget id '  + widgetId)
+            log.info('Unknown widget id '  + widgetId)
     }
 
 
@@ -153,24 +155,29 @@ server.get('/api/prices', (req, res) => {
 
 
 server.listen(port, () => {
-    console.log(`app listening at http://localhost:${port}`)
+    log.info(`app listening at http://localhost:${port}`)
 });
 
 
 var cron = require('node-cron');
 
-console.log('Start Cron')
+log.info('Start Cron')
 
-cron.schedule('59 23 * * *', () => {
-    console.log('Run cron reward');
+cron.schedule('00 00 * * *', () => {
+    log.info('Run cron reward');
     runReward();
 });
 
 cron.schedule('59 4 * * *', () => {
 
-    console.log('Run cron - Update Widget and load payouts')
+    log.info('Run cron - load payouts')
     payouts.loadPayouts().then(value => {
-        widget.updateWidgetFromSheet();
+
+        setTimeout(args => {
+            log.info('Run cron - Update Widget')
+            widget.updateWidgetFromSheet();
+
+        }, 5 * 60 * 1000);
     })
 
 });
@@ -179,9 +186,9 @@ cron.schedule('59 4 * * *', () => {
 const PRIV_KEY = process.env.pk
 
 if (PRIV_KEY) {
-    console.log('PK Key found')
+    log.info('PK Key found')
 } else {
-    console.log('PK Key not found')
+    log.info('PK Key not found')
 
 }
 
@@ -205,16 +212,16 @@ function runReward() {
             data: exchange.methods.reward().encodeABI()
         }
 
-        console.log('Tx data: ' + txData)
+        log.info('Tx data: ' + txData)
 
         web3.eth.accounts.signTransaction(txData, PRIV_KEY).then(value => {
 
             const sentTx = web3.eth.sendSignedTransaction(value.raw || value.rawTransaction);
             sentTx.on("receipt", receipt => {
-                console.log(receipt);
+                log.info(receipt);
             });
             sentTx.on("error", err => {
-                console.log(err);
+                log.info(err);
             });
         });
 
