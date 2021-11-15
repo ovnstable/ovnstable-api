@@ -1,4 +1,6 @@
-const EthDater = require('ethereum-block-by-date');
+const dotenv = require('dotenv');
+dotenv.config();
+
 const moment = require("moment");
 let debug = require('debug')('m2m');
 
@@ -6,7 +8,6 @@ const payouts = require('./payouts.js');
 const mintRedeem = require('./mintRedeem.js');
 const googleSheet = require('./pushToSheet.js');
 
-const web3Service = require("./web3Service.js");
 
 const dataBase = require('./database.js');
 const {sequelize} = require("./database");

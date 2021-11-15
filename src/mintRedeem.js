@@ -8,6 +8,8 @@ const {pushToSheet} = require("./pushToSheet");
 const {sequelize} = require("./database");
 const { DataTypes} = require("sequelize");
 
+let covalentApiKey = process.env.COVALENT_API_KEY;
+
 let mintRedeemEntity = sequelize.define('MintRedeemEntity', {
         transactionHash: {
             type: DataTypes.STRING,
@@ -38,7 +40,6 @@ async function getItems() {
 
     let query = await sequelize.query("select * from anal.mint_redeem order by block desc limit 1");
 
-    let API_KEY = 'ckey_3a2959d0ef4b489ea62c0473214';
     let topic = eventExchange.signature;
 
     let startBlock;
@@ -50,7 +51,7 @@ async function getItems() {
         startBlock = 20432146;
     }
     let endBlock = await web3Service.web3.eth.getBlockNumber();
-    let url = `https://api.covalenthq.com/v1/137/events/topics/${topic}/\?starting-block\=${startBlock}\&ending-block\=${endBlock}\&key\=${API_KEY}`
+    let url = `https://api.covalenthq.com/v1/137/events/topics/${topic}/\?starting-block\=${startBlock}\&ending-block\=${endBlock}\&key\=${covalentApiKey}`
 
     let items = await axios.get(url).then(value => {
         return value.data.data.items;

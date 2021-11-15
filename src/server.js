@@ -1,4 +1,5 @@
-let axios = require('axios');
+const dotenv = require('dotenv');
+dotenv.config();
 var cron = require('node-cron');
 
 const web3Service = require('./web3Service.js');
