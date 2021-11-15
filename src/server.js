@@ -1,4 +1,6 @@
 let axios = require('axios');
+var cron = require('node-cron');
+
 const web3Service = require('./web3Service.js');
 let debug = require('debug')('server')
 
@@ -162,7 +164,6 @@ server.listen(port, () => {
 });
 
 
-var cron = require('node-cron');
 
 debug('Start Cron')
 
@@ -171,16 +172,19 @@ cron.schedule('00 00 * * *', () => {
     runReward();
 });
 
-cron.schedule('59 4 * * *', () => {
+
+// Every hour
+cron.schedule('0 * * * *', () => {
 
     debug('Run cron - load payouts')
     payouts.loadPayouts().then(value => {
+        if (value){
+            setTimeout(args => {
+                debug('Run cron - Update Widget')
+                widget.updateWidgetFromSheet();
 
-        setTimeout(args => {
-            debug('Run cron - Update Widget')
-            widget.updateWidgetFromSheet();
-
-        }, 5 * 60 * 1000);
+            }, 5 * 60 * 1000); //5 minutes
+        }
     })
 
 });
@@ -208,7 +212,7 @@ function runReward() {
         const txData = {
             from: from,
             nonce: nonce,
-            gasPrice: web3.utils.toHex(web3.utils.toWei('15', 'gwei')),
+            gasPrice: web3.utils.toHex(web3.utils.toWei('40', 'gwei')),
             gasLimit: 6721975,
             to: to,
             value: '0x0',

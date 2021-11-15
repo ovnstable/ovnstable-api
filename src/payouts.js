@@ -85,8 +85,9 @@ function addToSheet(items){
             results.push(item)
         })
 
-        pushToSheet(results, 'Data API')
-
+        return pushToSheet(results, 'Data API')
+    }else{
+        return Promise.resolve();
     }
 }
 
@@ -147,9 +148,14 @@ function _loadItems(){
         let items = getRewardEvent(value);
 
         return payoutEntity.bulkCreate(items).then(()=> {
-            return addToSheet(items)
+            if (items.length > 0){
+                return addToSheet(items).then(() => Promise.resolve(true))
+            }else {
+                return Promise.resolve(false);
+            }
         }).catch(reason => {
-            debug(reason)
+            debug(reason);
+
         });
     })
 

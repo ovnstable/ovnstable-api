@@ -19,7 +19,7 @@ let mintRedeemEntity = sequelize.define('MintRedeemEntity', {
         value: DataTypes.DECIMAL,
         sender: DataTypes.STRING,
         type: DataTypes.STRING,
-
+        fee: DataTypes.DECIMAL,
     },
     {
         timestamps: true,
@@ -55,7 +55,7 @@ async function getItems() {
     let items = await axios.get(url).then(value => {
         return value.data.data.items;
     }).catch(reason => {
-        console.log(reason);
+        debug(reason);
         throw 'Не удалось выгрузить данные';
     });
 
@@ -110,6 +110,7 @@ const getMintRedeemEvents = (items) => {
             throw 'Unknown type ' + parameters.label;
 
         log.value = parameters.amount / 10 ** 6;
+        log.fee = parameters.fee / 10 ** 6;
 
         result.push(log)
     })
@@ -125,7 +126,7 @@ function _loadItems(){
         let items = getMintRedeemEvents(value);
 
         return mintRedeemEntity.bulkCreate(items).catch(reason => {
-            console.log(reason)
+            debug(reason)
         });
     });
 
@@ -148,6 +149,6 @@ function _getRecords(limit){
 }
 
 module.exports = {
-    loadPayouts: _loadItems,
+    loadRecords: _loadItems,
     getRecords: _getRecords,
 }

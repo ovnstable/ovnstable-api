@@ -5,6 +5,7 @@ let gauge = web3Service.gauge;
 let wMaticPriceGetter = web3Service.wMaticPriceGetter;
 let vault = web3Service.vault;
 
+const chainLinkPrice = require('./price/chainLinkPrice.js');
 
 async function _getWmatic(blocks) {
 
@@ -15,11 +16,18 @@ async function _getWmatic(blocks) {
 
         let block = item.block;
 
-        let claimedBefore = await gauge.methods.claimed_reward(vault.options.address, "0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270").call({}, block - 1) / 10 ** 18
-        let claimedAfter = await gauge.methods.claimed_reward(vault.options.address, "0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270").call({}, block + 1) / 10 ** 18
-        let number = claimedAfter - claimedBefore;
+        let number;
+        if (item.type !== 'PAYOUT'){
+            number = await gauge.methods.claimable_reward(vault.options.address, "0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270").call({}, block ) / 10 ** 18
+        }else {
+            let claimedBefore = await gauge.methods.claimed_reward(vault.options.address, "0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270").call({}, block-1 ) / 10 ** 18
+            let claimedAfter = await gauge.methods.claimed_reward(vault.options.address, "0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270").call({}, block+1 ) / 10 ** 18
+            number = claimedAfter - claimedBefore;
+        }
 
-        let marketPrice = await wMaticPriceGetter.methods.getUsdcBuyPrice().call({}, block.block) / 10 ** 18;
+
+        let marketPrice = await chainLinkPrice.getPriceMatic(block);
+        // let marketPrice = await wMaticPriceGetter.methods.getUsdcBuyPrice().call({}, block.block) / 10 ** 18;
         let liquidationPrice = await wMaticPriceGetter.methods.getUsdcSellPrice().call({}, block.block) / 10 ** 18;
 
         let netAssetValue = number * marketPrice;

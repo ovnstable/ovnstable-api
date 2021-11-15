@@ -8,6 +8,7 @@ let Curve = JSON.parse(fs.readFileSync('./contracts/iCurvePool.json'));
 let Gauge = JSON.parse(fs.readFileSync('./contracts/IRewardOnlyGauge.json'));
 let Vault = JSON.parse(fs.readFileSync('./contracts/Vault.json'));
 let WMaticPriceGetter = JSON.parse(fs.readFileSync('./contracts/WMaticPriceGetter.json'));
+let IUniswapV2Pair = JSON.parse(fs.readFileSync('./contracts/IUniswapV2Pair.json'));
 let CrvPriceGetter = JSON.parse(fs.readFileSync('./contracts/CrvPriceGetter.json'));
 let A3CrvPriceGetter = JSON.parse(fs.readFileSync('./contracts/A3CrvPriceGetter.json'));
 let A3CrvGaugePriceGetter = JSON.parse(fs.readFileSync('./contracts/A3CrvGaugePriceGetter.json'));
@@ -52,9 +53,24 @@ module.exports = {
     a3CrvPriceGetter: a3CrvPriceGetter,
     a3CrvGaugePriceGetter: a3CrvGaugePriceGetter,
     erc20: erc20,
+    uniswapV2Pair: _uniswapV2Pair,
 };
 
+function _uniswapV2Pair(...address){
+    return  new web3.eth.Contract(IUniswapV2Pair.abi, ...address)
+}
 
 function erc20(address){
     return new web3.eth.Contract(ERC20.abi, address);
 }
+
+
+// let pairCRV = _uniswapV2Pair( '0x172370d5Cd63279eFa6d502DAB29171933a610AF', '0x2791bca1f2de4661ed88a30c99a7a9449aa84174');
+//
+//
+// pairCRV.methods.getReserves().call().then(value => {
+//     console.log(value)
+// }).catch(reason => {
+//     console.log(reason)
+// })
+

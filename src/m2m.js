@@ -6,18 +6,19 @@ const payouts = require('./payouts.js');
 const mintRedeem = require('./mintRedeem.js');
 const googleSheet = require('./pushToSheet.js');
 
+const web3Service = require("./web3Service.js");
 
 const dataBase = require('./database.js');
 const {sequelize} = require("./database");
 const {DataTypes, Sequelize} = require("sequelize");
 
-const { getCRV } = require('./anal/CRV.js');
-const { getUSDC } = require('./anal/USDC.js');
-const { getAmUSDC } = require('./anal/amUSDC.js');
-const { getWmatic } = require('./anal/WMATIC.js');
-const { getAm3CRVGauge } = require('./anal/Am3CRVGauge.js');
-const { getAm3CRV  } = require('./anal/Am3CRV.js');
-const { getOVN  } = require('./anal/OVN.js');
+const {getCRV} = require('./anal/CRV.js');
+const {getUSDC} = require('./anal/USDC.js');
+const {getAmUSDC} = require('./anal/amUSDC.js');
+const {getWmatic} = require('./anal/WMATIC.js');
+const {getAm3CRVGauge} = require('./anal/Am3CRVGauge.js');
+const {getAm3CRV} = require('./anal/Am3CRV.js');
+const {getOVN} = require('./anal/OVN.js');
 
 
 let m2mEntity = dataBase.sequelize.define('m2mEntity', {
@@ -38,6 +39,7 @@ let m2mEntity = dataBase.sequelize.define('m2mEntity', {
         marketPrice: DataTypes.DECIMAL,
         date: DataTypes.DATE,
         transactionHash: DataTypes.STRING,
+        fee: DataTypes.DECIMAL,
     },
     {
         timestamps: true,
@@ -49,7 +51,7 @@ let m2mEntity = dataBase.sequelize.define('m2mEntity', {
 );
 
 
-async function uploadMintRedeem(){
+async function uploadMintRedeem() {
 
     mintRedeem.getRecords(1000).then(value => {
 
@@ -59,11 +61,22 @@ async function uploadMintRedeem(){
             let element = value[i];
 
             blocks.push({
+                block: element.block-1,
+                transactionHash: element.transaction_hash,
+                date: element.date,
+                type: element.type + " BEFORE",
+                value: element.value,
+                fee: element.fee,
+            });
+
+
+            blocks.push({
                 block: element.block,
                 transactionHash: element.transaction_hash,
                 date: element.date,
-                type: element.type,
+                type: element.type + " AFTER",
                 value: element.value,
+                fee: element.fee
             })
         }
 
@@ -71,9 +84,9 @@ async function uploadMintRedeem(){
     })
 }
 
-async function uploadPayouts(){
+async function uploadPayouts() {
 
-    payouts.getPayouts(100).then(value => {
+    return payouts.getPayouts(100).then(value => {
 
         let blocks = [];
 
@@ -81,69 +94,98 @@ async function uploadPayouts(){
             let element = value[i];
 
             blocks.push({
+                block: element.block-1,
+                transactionHash: element.transaction_hash,
+                date: element.payable_date,
+                type: 'PAYOUT BEFORE',
+                value: element.totally_amount_rewarded,
+                fee: 0,
+            });
+
+            blocks.push({
                 block: element.block,
                 transactionHash: element.transaction_hash,
                 date: element.payable_date,
-                type: 'PAYOUT',
-                value: element.total_ovn,
+                type: 'PAYOUT AFTER',
+                value: element.totally_amount_rewarded,
+                fee: 0,
             })
         }
 
-        updateM2m(blocks)
+        return updateM2m(blocks)
 
     });
 
 
 }
 
-// uploadPayouts();
-// uploadMintRedeem()
-// pushToSheet();
 
-async function updateM2m(blocks){
+async function recreateM2m() {
 
+    debug('recreate m2m')
 
-    getUSDC(blocks).then(value => {
-        m2mEntity.bulkCreate(value)
+    // await payouts.loadPayouts();
+    // await mintRedeem.loadRecords();
+
+    await uploadMintRedeem();
+    uploadPayouts().then(value => {
+        debug('Push m2m to sheet')
+        pushToSheet();
     })
-
-    getAmUSDC(blocks).then(value => {
-        m2mEntity.bulkCreate(value)
-    })
-
-    getWmatic(blocks).then(value => {
-        m2mEntity.bulkCreate(value);
-    });
-
-    getCRV(blocks).then(value => {
-        m2mEntity.bulkCreate(value)
-    });
-
-    getAm3CRVGauge(blocks).then(value => {
-        m2mEntity.bulkCreate(value);
-    });
-
-    getAm3CRV(blocks).then(value => {
-        m2mEntity.bulkCreate(value);
-    });
-
-    getOVN(blocks).then(value => {
-        m2mEntity.bulkCreate(value);
-    });
 }
 
 
-async function pushToSheet(){
+recreateM2m();
 
-    sequelize.query(`select * from anal.m2m order by date desc`).then(value => {
+async function updateM2m(blocks) {
+
+
+    let promises = [];
+    promises.push(getUSDC(blocks).then(value => {
+        return m2mEntity.bulkCreate(value)
+    }));
+
+    promises.push(getAmUSDC(blocks).then(value => {
+        return m2mEntity.bulkCreate(value)
+    }))
+
+    promises.push(getWmatic(blocks).then(value => {
+        return m2mEntity.bulkCreate(value);
+    }));
+
+    promises.push(getCRV(blocks).then(value => {
+        return m2mEntity.bulkCreate(value)
+    }));
+
+    promises.push(getAm3CRVGauge(blocks).then(value => {
+        return m2mEntity.bulkCreate(value);
+    }));
+
+    promises.push(getAm3CRV(blocks).then(value => {
+        return m2mEntity.bulkCreate(value);
+    }));
+
+    promises.push(getOVN(blocks).then(value => {
+        return m2mEntity.bulkCreate(value);
+    }));
+
+    return Promise.all(promises);
+}
+
+
+async function pushToSheet() {
+
+    sequelize.query(`select *
+                     from anal.m2m
+                     order by date desc`).then(value => {
 
         let array = value[0];
-        for (let i = 0; i <array.length; i++) {
+        for (let i = 0; i < array.length; i++) {
             let item = array[i];
             item.date = moment.utc(new Date(item.date.toString().slice(0, 24))).format('MM/DD/YYYY HH:mm:ss');
         }
 
-        googleSheet.pushToSheet(array, 'M2M API')
+        googleSheet.pushToSheetM2M(array, 'M2M - API')
     })
 
 }

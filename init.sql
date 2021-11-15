@@ -141,7 +141,8 @@ create table anal.m2m
     liquidation_price decimal,
     liquidation_value decimal,
     date              timestamp,
-    transaction_hash  varchar
+    transaction_hash  varchar,
+    fee               decimal
 );
 
 
@@ -154,5 +155,6 @@ create table anal.mint_redeem
     type             varchar not null,
     value            decimal not null,
     created_at       timestamp,
-    sender           varchar not null
+    sender           varchar not null,
+    fee              decimal
 );
