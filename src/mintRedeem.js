@@ -119,8 +119,6 @@ const getMintRedeemEvents = (items) => {
 
 
 
-_loadItems();
-
 function _loadItems(){
     return getItems().then(value => {
 
