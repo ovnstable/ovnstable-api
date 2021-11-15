@@ -13,7 +13,7 @@ async function _getAmUSDC(blocks){
         let item = blocks[i];
 
         let price = 1;
-        let positions = await amUSDC.methods.balanceOf(vault.options.address).call({}, item.block) / 10 ** 18;
+        let positions = await amUSDC.methods.balanceOf(vault.options.address).call({}, item.block) / 10 ** 6;
         results.push({
             ...item,
             active: 'amUSDC',

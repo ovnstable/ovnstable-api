@@ -15,6 +15,9 @@ async function _getAm3CRV(blocks) {
 
         let price = await a3CrvPriceGetter.methods.getUsdcBuyPrice().call({}, item.block)  / 10 ** 18;
         let positions = await am3CRV.methods.balanceOf(vault.options.address).call({}, item.block) / 10 ** 18;
+
+        let netAssetValue = positions * price;
+
         results.push({
             ...item,
             active: 'am3CRV',
@@ -24,8 +27,8 @@ async function _getAm3CRV(blocks) {
             date: moment(item.date).format('YYYY-MM-DD HH:mm'),
             marketPrice: price,
             liquidationPrice: price,
-            liquidationValue: 0,
-            netAssetValue: 0,
+            liquidationValue: netAssetValue,
+            netAssetValue: netAssetValue,
         });
     }
 

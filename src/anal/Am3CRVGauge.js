@@ -16,6 +16,9 @@ async function _getAm3CRVGauge(blocks){
 
         let price = await a3CrvGaugePriceGetter.methods.getUsdcBuyPrice().call({}, item.block)  / 10 ** 18;
         let positions = await am3CRVGauge.methods.balanceOf(vault.options.address).call({}, item.block) / 10 ** 18;
+
+        let netAssetValue = positions * price;
+
         results.push({
             ...item,
             active: 'am3CRV-gauge',
@@ -25,8 +28,8 @@ async function _getAm3CRVGauge(blocks){
             date: moment(item.date).format('YYYY-MM-DD HH:mm'),
             marketPrice: price,
             liquidationPrice: price,
-            liquidationValue: 0,
-            netAssetValue: 0,
+            liquidationValue: netAssetValue,
+            netAssetValue: netAssetValue,
         });
     }
 

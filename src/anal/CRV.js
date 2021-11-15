@@ -20,6 +20,8 @@ async function _getCRV(blocks) {
         let marketPrice = await crvPriceGetter.methods.getUsdcBuyPrice().call({}, block.block) / 10 ** 18;
         let liquidationPrice = await crvPriceGetter.methods.getUsdcSellPrice().call({}, block.block) / 10 ** 18;
 
+        let netAssetValue = number * marketPrice;
+        let liquidationValue = number * liquidationPrice;
 
         results.push({
             ...item,
@@ -30,8 +32,8 @@ async function _getCRV(blocks) {
             date: item.date,
             marketPrice: marketPrice,
             liquidationPrice: liquidationPrice,
-            liquidationValue: 0,
-            netAssetValue: 0,
+            liquidationValue: liquidationValue,
+            netAssetValue: netAssetValue,
         });
 
 

@@ -16,7 +16,8 @@ const { getUSDC } = require('./anal/USDC.js');
 const { getAmUSDC } = require('./anal/amUSDC.js');
 const { getWmatic } = require('./anal/WMATIC.js');
 const { getAm3CRVGauge } = require('./anal/Am3CRVGauge.js');
-const { getAm3CRV } = require('./anal/Am3CRV.js');
+const { getAm3CRV  } = require('./anal/Am3CRV.js');
+const { getOVN  } = require('./anal/OVN.js');
 
 
 let m2mEntity = dataBase.sequelize.define('m2mEntity', {
@@ -95,7 +96,9 @@ async function uploadPayouts(){
 
 }
 
-uploadPayouts();
+// uploadPayouts();
+// uploadMintRedeem()
+// pushToSheet();
 
 async function updateM2m(blocks){
 
@@ -121,6 +124,10 @@ async function updateM2m(blocks){
     });
 
     getAm3CRV(blocks).then(value => {
+        m2mEntity.bulkCreate(value);
+    });
+
+    getOVN(blocks).then(value => {
         m2mEntity.bulkCreate(value);
     });
 }

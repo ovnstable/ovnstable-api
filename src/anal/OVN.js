@@ -1,12 +1,11 @@
 const moment = require("moment");
 
-
 const web3Service = require('../web3Service.js');
 
 let vault = web3Service.vault;
-let usdc = web3Service.erc20('0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174');
+let ovn = web3Service.erc20('0xcE5bcF8816863A207BF1c0723B91aa8D5B9c6614');
 
-async function _getUSDC(blocks){
+async function _getOVN(blocks) {
 
     let results = [];
 
@@ -14,18 +13,21 @@ async function _getUSDC(blocks){
         let item = blocks[i];
 
         let price = 1;
-        let positions = await usdc.methods.balanceOf(vault.options.address).call({}, item.block) / 10 ** 6;
+        let positions = await ovn.methods.totalSupply().call({}, item.block) / 10 ** 6;
+
+        let netAssetValue = positions * price;
+
         results.push({
             ...item,
-            active: 'USDC',
+            active: 'OVN',
             position: positions,
             block: item.block,
             transactionHash: item.transactionHash,
             date: moment(item.date).format('YYYY-MM-DD HH:mm'),
             marketPrice: price,
             liquidationPrice: price,
-            liquidationValue: positions,
-            netAssetValue: positions,
+            liquidationValue: netAssetValue,
+            netAssetValue: netAssetValue,
         });
     }
 
@@ -35,5 +37,5 @@ async function _getUSDC(blocks){
 
 
 module.exports = {
-    getUSDC: _getUSDC
+    getOVN: _getOVN
 }
