@@ -2,7 +2,7 @@
 const EthDater = require('ethereum-block-by-date');
 const moment = require("moment");
 const axios = require("axios");
-let log = require('log');
+let debug = require('debug')('server');;
 
 const payouts = require('./payouts.js');
 const mintRedeem = require('./mintRedeem.js');

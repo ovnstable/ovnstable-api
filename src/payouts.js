@@ -1,4 +1,5 @@
 const axios = require('axios');
+let debug = require('debug')('server');
 
 const web3Service = require('./web3Service');
 const fs = require("fs");
@@ -60,7 +61,7 @@ async function getItems() {
     let items = await axios.get(url).then(value => {
         return value.data.data.items;
     }).catch(reason => {
-        console.log(reason);
+        debug(reason);
         throw 'Не удалось выгрузить данные';
     });
 
@@ -148,7 +149,7 @@ function _loadItems(){
         return payoutEntity.bulkCreate(items).then(()=> {
             return addToSheet(items)
         }).catch(reason => {
-            console.log(reason)
+            debug(reason)
         });
     })
 

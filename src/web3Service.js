@@ -1,5 +1,6 @@
 const fs = require('fs');
 const Web3 = require('web3');
+let debug = require('debug')('server');
 let OverNightToken = JSON.parse(fs.readFileSync('./contracts/OvernightToken.json'));
 let Exchange = JSON.parse(fs.readFileSync('./contracts/Exchange.json'));
 let M2m = JSON.parse(fs.readFileSync('./contracts/Mark2Market.json'));
@@ -13,10 +14,10 @@ let A3CrvGaugePriceGetter = JSON.parse(fs.readFileSync('./contracts/A3CrvGaugePr
 let ERC20 = JSON.parse(fs.readFileSync('./contracts/ERC20.json'));
 
 let web3URL = process.env.WEB3_URL
-console.log('Web3 URL ' + web3URL)
+debug('Web3 URL ' + web3URL)
 let web3 = new Web3(web3URL);
 web3.eth.net.getId().then(value => {
-    console.log('Network ID' + value)
+    debug('Network ID' + value)
 });
 
 
@@ -32,9 +33,9 @@ let vault = new web3.eth.Contract(Vault.abi, Vault.networks[137].address)
 let a3CrvPriceGetter = new web3.eth.Contract(A3CrvPriceGetter.abi, A3CrvPriceGetter.networks[137].address)
 let a3CrvGaugePriceGetter = new web3.eth.Contract(A3CrvGaugePriceGetter.abi, A3CrvGaugePriceGetter.networks[137].address)
 
-console.log('Exchange address: ' + exchange.options.address)
-console.log('M2m address: ' + m2m.options.address)
-console.log('Ovn address: ' + ovn.options.address)
+debug('Exchange address: ' + exchange.options.address)
+debug('M2m address: ' + m2m.options.address)
+debug('Ovn address: ' + ovn.options.address)
 
 
 module.exports = {

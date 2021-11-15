@@ -2,7 +2,8 @@ let accounting = require('accounting-js');
 let moment = require('moment');
 const pushToSheet = require('./pushToSheet.js');
 const dataBase = require('./database.js');
-const e = require("express");
+let debug = require('debug')('server');
+
 
 let accountingConfig = {
     symbol: "",
@@ -60,7 +61,7 @@ const _polyborWeeks = async () => {
 
 const _updateWidgetFromSheet = () => {
 
-    console.log('Run loading widget data from sheet ')
+    debug('Run loading widget data from sheet ')
 
 
     pushToSheet.getDistributionRates().then(value => {
@@ -72,7 +73,7 @@ const _updateWidgetFromSheet = () => {
         }
 
         dataBase.saveWidgetDistributionRates(value).catch(reason => {
-            console.log(reason)
+            debug(reason)
         });
     });
 
@@ -90,7 +91,7 @@ const _updateWidgetFromSheet = () => {
         }
 
         dataBase.saveWidgetInterestRates(results.reverse()).catch(reason => {
-            console.log(reason)
+            debug(reason)
         });
 
     });
@@ -107,7 +108,7 @@ const _updateWidgetFromSheet = () => {
         }
 
         dataBase.saveWidgetPolyborWeeksTable(value).catch(reason => {
-            console.log(reason)
+            debug(reason)
         });
 
     });
@@ -125,12 +126,12 @@ const _updateWidgetFromSheet = () => {
 
         let find = value.find(item => item.type === 'polybor');
         dataBase.saveWidgetPolybor([find]).catch(reason => {
-            console.log(reason)
+            debug(reason)
         });
 
         find = value.find(item => item.type === 'polybor-week');
         dataBase.saveWidgetPolyborWeek([find]).catch(reason => {
-            console.log(reason)
+            debug(reason)
         })
 
     });

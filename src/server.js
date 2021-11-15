@@ -1,7 +1,6 @@
 let axios = require('axios');
 const web3Service = require('./web3Service.js');
-
-let log = require('log');
+let debug = require('debug')('server')
 
 const widget = require('./widget.js')
 
@@ -45,12 +44,16 @@ server.get('/api/total', (req, res) => {
 
 });
 
-server.get('/api/load-payouts', () => {
+server.get('/api/load-payouts', (req, res) => {
+    debug('API: Load-payouts')
     payouts.loadPayouts();
+    res.end();
 })
 
-server.get('/api/update-widgets', () =>{
+server.get('/api/update-widgets', (req, res) =>{
+    debug('API: Update widgets')
     widget.updateWidgetFromSheet();
+    res.end();
 })
 
 server.get('/api/widget/:widgetId', (req, res) => {
@@ -96,7 +99,7 @@ server.get('/api/widget/:widgetId', (req, res) => {
 
 
         default:
-            log.info('Unknown widget id '  + widgetId)
+            debug('Unknown widget id '  + widgetId)
     }
 
 
@@ -155,26 +158,26 @@ server.get('/api/prices', (req, res) => {
 
 
 server.listen(port, () => {
-    log.info(`app listening at http://localhost:${port}`)
+    debug(`app listening at http://localhost:${port}`)
 });
 
 
 var cron = require('node-cron');
 
-log.info('Start Cron')
+debug('Start Cron')
 
 cron.schedule('00 00 * * *', () => {
-    log.info('Run cron reward');
+    debug('Run cron reward ');
     runReward();
 });
 
 cron.schedule('59 4 * * *', () => {
 
-    log.info('Run cron - load payouts')
+    debug('Run cron - load payouts')
     payouts.loadPayouts().then(value => {
 
         setTimeout(args => {
-            log.info('Run cron - Update Widget')
+            debug('Run cron - Update Widget')
             widget.updateWidgetFromSheet();
 
         }, 5 * 60 * 1000);
@@ -186,9 +189,9 @@ cron.schedule('59 4 * * *', () => {
 const PRIV_KEY = process.env.pk
 
 if (PRIV_KEY) {
-    log.info('PK Key found')
+    debug('PK Key found')
 } else {
-    log.info('PK Key not found')
+    debug('PK Key not found')
 
 }
 
@@ -212,16 +215,16 @@ function runReward() {
             data: exchange.methods.reward().encodeABI()
         }
 
-        log.info('Tx data: ' + txData)
+        debug('Tx data: ' + txData)
 
         web3.eth.accounts.signTransaction(txData, PRIV_KEY).then(value => {
 
             const sentTx = web3.eth.sendSignedTransaction(value.raw || value.rawTransaction);
             sentTx.on("receipt", receipt => {
-                log.info(receipt);
+                debug(receipt);
             });
             sentTx.on("error", err => {
-                log.info(err);
+                debug(err);
             });
         });
 

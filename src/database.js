@@ -1,19 +1,19 @@
 const {Sequelize, DataTypes} = require('sequelize');
-
+let debug = require('debug')('server');
 
 let url = process.env.POSTGRES_CONNECT_URL;
 if (!url)
     url= 'postgres://postgres:@localhost:5432/ovn_analytics'
 
-console.log('Connect url: ' + url)
+debug('Connect url: ' + url)
 const sequelize = new Sequelize(url)
 
 try {
     sequelize.authenticate().then(value => {
-        console.log('Соединение с БД было успешно установлено')
+       debug('Соединение с БД было успешно установлено')
     })
 } catch (e) {
-    console.log('Невозможно выполнить подключение к БД: ', e)
+   debug('Невозможно выполнить подключение к БД: ', e)
 }
 
 

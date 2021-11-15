@@ -1,4 +1,5 @@
 const axios = require('axios');
+let debug = require('debug')('server');
 
 const web3Service = require('./web3Service');
 const moment = require("moment");
