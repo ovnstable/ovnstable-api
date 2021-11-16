@@ -106,7 +106,8 @@ create table anal.m2m
     liquidation_value decimal,
     date              timestamp,
     transaction_hash  varchar,
-    fee               decimal
+    fee               decimal,
+    index             int
 );
 
 

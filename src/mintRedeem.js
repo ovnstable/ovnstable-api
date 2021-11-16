@@ -41,17 +41,41 @@ async function getItems() {
     let query = await sequelize.query("select * from anal.mint_redeem order by block desc limit 1");
 
     let topic = eventExchange.signature;
-
     let startBlock;
     if (query[0][0]) {
         startBlock = query[0][0].block + 1;
-        lastDateFromPayouts = moment.utc(new Date(query[0][0].date.toString().slice(0, 24)));
-        ;
+        lastDateFromPayouts = moment.utc(new Date(query[0][0].payable_date.toString().slice(0, 24)));
     } else {
         startBlock = 20432146;
     }
+
+
+    let million = 1000000;
+    let lastBlock = startBlock + million;
     let endBlock = await web3Service.web3.eth.getBlockNumber();
-    let url = `https://api.covalenthq.com/v1/137/events/topics/${topic}/\?starting-block\=${startBlock}\&ending-block\=${endBlock}\&key\=${covalentApiKey}`
+
+    let results = [];
+    while (lastBlock !== endBlock) {
+
+
+        let list = await getData(topic, startBlock, lastBlock);
+        results.push(...list)
+
+        startBlock = lastBlock + 1;
+        lastBlock = lastBlock + million;
+        if (lastBlock > endBlock){
+            lastBlock = endBlock;
+            let list = await getData(topic, startBlock, lastBlock);
+            results.push(...list)
+        }
+    }
+
+    return results;
+}
+
+
+async function getData(topic, startBlock, lastBlock){
+    let url = `https://api.covalenthq.com/v1/137/events/topics/${topic}/\?starting-block\=${startBlock}\&ending-block\=${lastBlock}\&key\=${covalentApiKey}`
 
     let items = await axios.get(url).then(value => {
         return value.data.data.items;
@@ -62,9 +86,6 @@ async function getItems() {
 
     return items;
 }
-
-
-
 
 function addToSheet(items){
     if (items.length > 0) {

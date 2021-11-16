@@ -7,7 +7,7 @@ const moment = require("moment");
 const {toFixed} = require("accounting-js");
 const {pushToSheet} = require("./pushToSheet");
 const {sequelize} = require("./database");
-const { DataTypes} = require("sequelize");
+const {DataTypes} = require("sequelize");
 
 let covalentApiKey = process.env.COVALENT_API_KEY;
 
@@ -52,12 +52,37 @@ async function getItems() {
     if (query[0][0]) {
         startBlock = query[0][0].block + 1;
         lastDateFromPayouts = moment.utc(new Date(query[0][0].payable_date.toString().slice(0, 24)));
-        ;
     } else {
         startBlock = 20432146;
     }
+
+
+    let million = 1000000;
+    let lastBlock = startBlock + million;
     let endBlock = await web3Service.web3.eth.getBlockNumber();
-    let url = `https://api.covalenthq.com/v1/137/events/topics/${topic}/\?starting-block\=${startBlock}\&ending-block\=${endBlock}\&key\=${covalentApiKey}`
+
+    let results = [];
+    while (lastBlock !== endBlock) {
+
+
+        let list = await getData(topic, startBlock, lastBlock);
+        results.push(...list)
+
+        startBlock = lastBlock + 1;
+        lastBlock = lastBlock + million;
+        if (lastBlock > endBlock){
+            lastBlock = endBlock;
+            let list = await getData(topic, startBlock, lastBlock);
+            results.push(...list)
+        }
+    }
+
+
+    return results;
+}
+
+async function getData(topic, startBlock, lastBlock){
+    let url = `https://api.covalenthq.com/v1/137/events/topics/${topic}/\?starting-block\=${startBlock}\&ending-block\=${lastBlock}\&key\=${covalentApiKey}`
 
     let items = await axios.get(url).then(value => {
         return value.data.data.items;
@@ -69,10 +94,7 @@ async function getItems() {
     return items;
 }
 
-
-
-
-function addToSheet(items){
+function addToSheet(items) {
     if (items.length > 0) {
         let results = [];
         items.forEach(value => {
@@ -87,11 +109,10 @@ function addToSheet(items){
         })
 
         return pushToSheet(results, 'Data API')
-    }else{
+    } else {
         return Promise.resolve();
     }
 }
-
 
 
 const getRewardEvent = (items) => {
@@ -117,7 +138,7 @@ const getRewardEvent = (items) => {
         log.totallySaved = parameters.totallySaved / 10 ** 6;
         log.dailyProfit = Number.parseFloat(toFixed(log.totallyAmountRewarded / log.totalOvn, 6));
 
-        if (items.length === 1){
+        if (items.length === 1) {
             lastDate = lastDateFromPayouts;
         }
 
@@ -143,15 +164,15 @@ function diff_hours(dt2, dt1) {
 }
 
 
-function _loadItems(){
+function _loadItems() {
     return getItems().then(value => {
 
         let items = getRewardEvent(value);
 
-        return payoutEntity.bulkCreate(items).then(()=> {
-            if (items.length > 0){
+        return payoutEntity.bulkCreate(items).then(() => {
+            if (items.length > 0) {
                 return addToSheet(items).then(() => Promise.resolve(true))
-            }else {
+            } else {
                 return Promise.resolve(false);
             }
         }).catch(reason => {
@@ -162,13 +183,16 @@ function _loadItems(){
 
 }
 
-function _getPayouts(limit){
-    return sequelize.query(`select * from anal.payouts order by block desc limit ${limit}`).then(value => {
+function _getPayouts(limit) {
+    return sequelize.query(`select *
+                            from anal.payouts
+                            order by block desc
+                            limit ${limit}`).then(value => {
 
         let array = value[0];
 
-        if (array){
-            for (let i = 0; i <array.length ; i++) {
+        if (array) {
+            for (let i = 0; i < array.length; i++) {
                 let element = array[i];
                 element.payable_date = moment.utc(new Date(element.payable_date.toString().slice(0, 24)))
             }

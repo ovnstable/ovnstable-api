@@ -25,7 +25,7 @@ async function _getAm3CRVGauge(blocks){
             position: positions,
             block: item.block,
             transactionHash: item.transactionHash,
-            date: moment(item.date).format('YYYY-MM-DD HH:mm'),
+            date: item.date,
             marketPrice: price,
             liquidationPrice: price,
             liquidationValue: netAssetValue,
