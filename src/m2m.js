@@ -132,10 +132,10 @@ async function recreateM2m() {
 
     // await uploadMintRedeem();
     // await uploadPayouts();
-
+    //
     // await updateIndex();
-    // debug('Push m2m to sheet')
-    // pushToSheet();
+    debug('Push m2m to sheet')
+    pushToSheet();
 }
 
 

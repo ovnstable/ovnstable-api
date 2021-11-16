@@ -6,6 +6,7 @@ let crvPriceGetter = web3Service.crvPriceGetter;
 let vault = web3Service.vault;
 
 const chainLinkPrice = require('./price/chainLinkPrice.js');
+const {toFixed} = require("accounting-js");
 
 
 async function _getCRV(blocks) {
@@ -17,8 +18,8 @@ async function _getCRV(blocks) {
         let block = item.block;
 
         let number;
-        if (item.type !== 'PAYOUT'){
-            number = await gauge.methods.claimable_reward(vault.options.address, "0x172370d5Cd63279eFa6d502DAB29171933a610AF").call({}, block ) / 10 ** 18
+        if (item.type !== 'PAYOUT AFTER' && item.type !== 'PAYOUT BEFORE'){
+            number = await gauge.methods.claimable_reward_write(vault.options.address, "0x172370d5Cd63279eFa6d502DAB29171933a610AF").call({}, block ) / 10 ** 18
         }else {
             let claimedBefore = await gauge.methods.claimed_reward(vault.options.address, "0x172370d5Cd63279eFa6d502DAB29171933a610AF").call({}, block-1 ) / 10 ** 18
             let claimedAfter = await gauge.methods.claimed_reward(vault.options.address, "0x172370d5Cd63279eFa6d502DAB29171933a610AF").call({}, block+1 ) / 10 ** 18
@@ -58,13 +59,13 @@ async function getLiqPrice(amount,block) {
         return 0;
 
     try {
-        amount = amount * 10 ** 18
+        let value = toFixed(amount * 10 ** 18, 0)
 
         let res = [];
         res[0] = '0x172370d5Cd63279eFa6d502DAB29171933a610AF' // CRV
         res[1] = '0x2791bca1f2de4661ed88a30c99a7a9449aa84174' // USDC
 
-        let toBN = web3Service.web3.utils.toBN(amount);
+        let toBN = web3Service.web3.utils.toBN(value);
         let amountsOut = await web3Service.swapRouter.methods.getAmountsOut(toBN, res).call({}, block);
         let price = ((amountsOut[1] * (10**12) * 10**18)/ amountsOut[0]) / 10 ** 18
         return price;
