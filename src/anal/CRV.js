@@ -1,6 +1,6 @@
+let debug = require('debug')('crv');
 
 const web3Service = require('../web3Service.js');
-
 let gauge = web3Service.gauge;
 let crvPriceGetter = web3Service.crvPriceGetter;
 let vault = web3Service.vault;
@@ -26,7 +26,7 @@ async function _getCRV(blocks) {
         }
 
         let marketPrice = await chainLinkPrice.getPriceCRV(block);
-        let liquidationPrice = await crvPriceGetter.methods.getUsdcSellPrice().call({}, block.block) / 10 ** 18;
+        let liquidationPrice = await getLiqPrice(number, block)
 
         let netAssetValue = number * marketPrice;
         let liquidationValue = number * liquidationPrice;
@@ -51,6 +51,29 @@ async function _getCRV(blocks) {
     return results
 
 }
+
+async function getLiqPrice(amount,block) {
+
+    if (amount === 0)
+        return 0;
+
+    try {
+        amount = amount * 10 ** 18
+
+        let res = [];
+        res[0] = '0x172370d5Cd63279eFa6d502DAB29171933a610AF' // CRV
+        res[1] = '0x2791bca1f2de4661ed88a30c99a7a9449aa84174' // USDC
+
+        let toBN = web3Service.web3.utils.toBN(amount);
+        let amountsOut = await web3Service.swapRouter.methods.getAmountsOut(toBN, res).call({}, block);
+        let price = ((amountsOut[1] * (10**12) * 10**18)/ amountsOut[0]) / 10 ** 18
+        return price;
+    } catch (e) {
+        debug('Error ' + e)
+        return 0;
+    }
+}
+
 
 
 module.exports = {
