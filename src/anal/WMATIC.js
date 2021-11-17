@@ -8,6 +8,7 @@ let vault = web3Service.vault;
 
 const chainLinkPrice = require('./price/chainLinkPrice.js');
 const {toFixed} = require("accounting-js");
+const {getLiq} = require("./utils");
 
 async function _getWmatic(blocks) {
 
@@ -28,21 +29,19 @@ async function _getWmatic(blocks) {
         }
 
         let marketPrice = await chainLinkPrice.getPriceMatic(block);
-        let liquidationPrice = await getLiqPrice(number, block);
-
         let netAssetValue = number * marketPrice;
-        let liquidationValue = number * liquidationPrice;
+
+        let liq = await getLiq([0.1, 1, 10, 100], number, block, getLiqPrice);
 
         results.push({
             ...item,
+            ...liq,
             active: 'WMATIC',
             position: number,
             block: item.block,
             transactionHash: item.transactionHash,
             date: item.date,
             marketPrice: marketPrice,
-            liquidationPrice: liquidationPrice,
-            liquidationValue: liquidationValue,
             netAssetValue: netAssetValue,
         });
     }
@@ -50,6 +49,7 @@ async function _getWmatic(blocks) {
 
     return results;
 }
+
 
 async function getLiqPrice(amount,block) {
 

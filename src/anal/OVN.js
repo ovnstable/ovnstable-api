@@ -1,6 +1,7 @@
 const moment = require("moment");
 
 const web3Service = require('../web3Service.js');
+const {getLiq} = require("./utils");
 
 let vault = web3Service.vault;
 let ovn = web3Service.erc20('0xcE5bcF8816863A207BF1c0723B91aa8D5B9c6614');
@@ -17,16 +18,17 @@ async function _getOVN(blocks) {
 
         let netAssetValue = positions * price;
 
+        let liq = await getLiq([0.1, 1, 10, 100], positions, item.block, getLiqPrice);
+
         results.push({
             ...item,
+            ...liq,
             active: 'OVN',
             position: positions,
             block: item.block,
             transactionHash: item.transactionHash,
             date: item.date,
             marketPrice: price,
-            liquidationPrice: price,
-            liquidationValue: netAssetValue,
             netAssetValue: netAssetValue,
         });
     }
@@ -35,6 +37,9 @@ async function _getOVN(blocks) {
     return results;
 }
 
+async function getLiqPrice(amount,block) {
+    return amount;
+}
 
 module.exports = {
     getOVN: _getOVN

@@ -93,21 +93,28 @@ create table anal.total_ovn
 drop table if exists anal.m2m;
 create table anal.m2m
 (
-    id                uuid primary key,
-    block             int,
-    active            varchar,
-    type              varchar,
-    value             decimal,
-    created_at        timestamp,
-    position          decimal,
-    market_price      decimal,
-    net_asset_value   decimal,
-    liquidation_price decimal,
-    liquidation_value decimal,
-    date              timestamp,
-    transaction_hash  varchar,
-    fee               decimal,
-    index             int
+    id                    uuid primary key,
+    block                 int,
+    active                varchar,
+    type                  varchar,
+    value                 decimal,
+    created_at            timestamp,
+    position              decimal,
+    market_price          decimal,
+    net_asset_value       decimal,
+    liquidation_price_01 decimal,
+    liquidation_price_1  decimal,
+    liquidation_price_10 decimal,
+    liquidation_price_100 decimal,
+
+    liquidation_value_01 decimal,
+    liquidation_value_1  decimal,
+    liquidation_value_10 decimal,
+    liquidation_value_100 decimal,
+    date                  timestamp,
+    transaction_hash      varchar,
+    fee                   decimal,
+    index                 int
 );
 
 
@@ -116,7 +123,7 @@ create table anal.mint_redeem
 (
     transaction_hash varchar primary key,
     date             timestamp,
-    block            int not null,
+    block            int     not null,
     type             varchar not null,
     value            decimal not null,
     created_at       timestamp,
