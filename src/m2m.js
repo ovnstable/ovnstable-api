@@ -37,8 +37,15 @@ let m2mEntity = dataBase.sequelize.define('m2mEntity', {
         block: DataTypes.INTEGER,
         position: DataTypes.DECIMAL,
         netAssetValue: DataTypes.DECIMAL,
-        liquidationPrice: DataTypes.DECIMAL,
-        liquidationValue: DataTypes.DECIMAL,
+        liquidationPrice_01: DataTypes.DECIMAL,
+        liquidationPrice_1: DataTypes.DECIMAL,
+        liquidationPrice_10: DataTypes.DECIMAL,
+        liquidationPrice_100: DataTypes.DECIMAL,
+
+        liquidationValue_01: DataTypes.DECIMAL,
+        liquidationValue_1: DataTypes.DECIMAL,
+        liquidationValue_10: DataTypes.DECIMAL,
+        liquidationValue_100: DataTypes.DECIMAL,
         marketPrice: DataTypes.DECIMAL,
         date: DataTypes.DATE,
         transactionHash: DataTypes.STRING,
@@ -133,7 +140,7 @@ async function recreateM2m() {
     // await uploadMintRedeem();
     // await uploadPayouts();
     //
-    // await updateIndex();
+    await updateIndex();
     debug('Push m2m to sheet')
     pushToSheet();
 }

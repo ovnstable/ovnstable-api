@@ -1,6 +1,7 @@
 const moment = require("moment");
 
 const web3Service = require('../web3Service.js');
+const {getLiq} = require("./utils");
 
 let vault = web3Service.vault;
 let a3CrvPriceGetter = web3Service.a3CrvPriceGetter;
@@ -16,22 +17,19 @@ async function _getAm3CRV(blocks) {
 
         let price = await a3CrvPriceGetter.methods.getUsdcBuyPrice().call({}, item.block)  / 10 ** 18;
         let positions = await am3CRV.methods.balanceOf(vault.options.address).call({}, item.block) / 10 ** 18;
-
-        let liqPrice = await getLiqPrice();
-        let liquidationValue = liqPrice * positions;
-
         let netAssetValue = positions * price;
+
+        let liq = await getLiq([0.1, 1, 10, 100], positions, item.block, getLiqPrice);
 
         results.push({
             ...item,
+            ...liq,
             active: 'am3CRV',
             position: positions,
             block: item.block,
             transactionHash: item.transactionHash,
             date: item.date,
             marketPrice: price,
-            liquidationPrice: liqPrice,
-            liquidationValue: liquidationValue,
             netAssetValue: netAssetValue,
         });
     }
@@ -40,14 +38,8 @@ async function _getAm3CRV(blocks) {
     return results;
 }
 
-async function getLiqPrice(){
-
-
-    let one = await curve.methods.coins(0).call();
-    let second = await curve.methods.coins(1).call();
-    let third = await curve.methods.coins(2).call();
-
-    return 0;
+async function getLiqPrice(amount,block) {
+    return amount;
 }
 
 
