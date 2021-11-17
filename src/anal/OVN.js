@@ -18,7 +18,7 @@ async function _getOVN(blocks) {
 
         let netAssetValue = positions * price;
 
-        let liq = await getLiq([0.1, 1, 10, 100], positions, item.block, getLiqPrice);
+        let liq = await getLiq([0.1, 1, 10, 100], positions, item.block, ()=> price);
 
         results.push({
             ...item,
@@ -37,9 +37,6 @@ async function _getOVN(blocks) {
     return results;
 }
 
-async function getLiqPrice(amount,block) {
-    return amount;
-}
 
 module.exports = {
     getOVN: _getOVN

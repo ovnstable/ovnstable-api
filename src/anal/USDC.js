@@ -16,7 +16,7 @@ async function _getUSDC(blocks){
 
         let price = 1;
         let positions = await usdc.methods.balanceOf(vault.options.address).call({}, item.block) / 10 ** 6;
-        let liq = await getLiq([0.1, 1, 10, 100], positions, item.block, getLiqPrice);
+        let liq = await getLiq([0.1, 1, 10, 100], positions, item.block, ()=> price);
 
         results.push({
             ...item,
@@ -35,9 +35,7 @@ async function _getUSDC(blocks){
     return results;
 }
 
-async function getLiqPrice(amount,block) {
-    return amount;
-}
+
 
 module.exports = {
     getUSDC: _getUSDC
