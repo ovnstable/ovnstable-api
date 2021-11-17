@@ -32,7 +32,6 @@ async function activePrices() {
 }
 
 
-
 const express = require('express')
 const server = express()
 const port = 3000
@@ -53,7 +52,7 @@ server.get('/api/load-payouts', (req, res) => {
     res.end();
 })
 
-server.get('/api/update-widgets', (req, res) =>{
+server.get('/api/update-widgets', (req, res) => {
     debug('API: Update widgets')
     widget.updateWidgetFromSheet();
     res.end();
@@ -63,7 +62,7 @@ server.get('/api/widget/:widgetId', (req, res) => {
 
 
     let widgetId = req.params.widgetId;
-    switch (widgetId){
+    switch (widgetId) {
         case 'polybor':
             widget.polybor().then(value => {
                 res.setHeader('Access-Control-Allow-Origin', '*');
@@ -102,7 +101,7 @@ server.get('/api/widget/:widgetId', (req, res) => {
 
 
         default:
-            debug('Unknown widget id '  + widgetId)
+            debug('Unknown widget id ' + widgetId)
     }
 
 
@@ -165,7 +164,6 @@ server.listen(port, () => {
 });
 
 
-
 debug('Start Cron')
 
 cron.schedule('00 00 * * *', () => {
@@ -179,14 +177,12 @@ cron.schedule('0 * * * *', () => {
 
     debug('Run cron - load payouts')
     payouts.loadPayouts().then(value => {
-        if (value){
-            setTimeout(args => {
-                debug('Run cron - Update Widget')
-                widget.updateWidgetFromSheet();
+        setTimeout(args => {
+            debug('Run cron - Update Widget')
+            widget.updateWidgetFromSheet();
 
-            }, 5 * 60 * 1000); //5 minutes
-        }
-    })
+        }, 5 * 60 * 1000); //5 minutes
+    });
 
 });
 
@@ -232,7 +228,6 @@ function runReward() {
                 debug(err);
             });
         });
-
 
 
     });
