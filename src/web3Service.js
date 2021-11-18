@@ -74,33 +74,53 @@ function erc20(address) {
 
 async function curveTest(amount) {
 
-    console.log(' ')
+    // console.log(' ')
 
-    console.log('Input sum ' + amount)
-    let value = web3.utils.toWei(amount+ '');
-    console.log('Input fixed ' + amount)
+    // index = 1 = amUSDC
 
+    let priceLp = await curve.methods.get_virtual_price().call() / 10 ** 18;
+    // console.log('Price lp token: ' + priceLp);
 
-    let withdrAmount0 = await curve.methods.calc_withdraw_one_coin(value, 0).call();
-    let withdrAmount1 = await curve.methods.calc_withdraw_one_coin(value, 1).call();
-    let withdrAmount2 = await curve.methods.calc_withdraw_one_coin(value, 2).call();
+    // console.log(amount)
+
+    // console.log('Sum amUSDC: ' + amount)
+    // let newSum = (amount / priceLp)
+    // console.log('Count am3CRV:' + newSum);
+
+    let ZERO_ETHER = web3.utils.toWei('0', 'ether');
+    let fixed = toFixed( amount * 10 ** 6, 0);
+    // console.log('Sum after fixed: ' + fixed)
+    const amounts = [ZERO_ETHER, fixed, ZERO_ETHER];
+
+    let calcTokenAmount = await curve.methods.calc_token_amount(amounts, true).call();
+    // console.log('Sum with slippage am3CRV: ' + calcTokenAmount  / 10 ** 18)
+
+    let withdrAmount1 = await curve.methods.calc_withdraw_one_coin(calcTokenAmount, 1).call();
 
     let convert = withdrAmount1 / 10 ** 6
-    console.log('calc_withdraw_one_coin 0 = ' + withdrAmount0)
-    console.log('calc_withdraw_one_coin 1 = ' + convert)
-    console.log('calc_withdraw_one_coin 2 = ' + withdrAmount2)
+    // console.log('Liquidation value amUSDC : ' + convert)
 
-    console.log('PRICE ' + convert / amount)
+    let number = amount/( calcTokenAmount / 10 ** 18);
+    // console.log('Liquidation price: ' + number)
+    // console.log('Liquidation price office: ' + priceLp)
+    let priceResult = number - priceLp;
+    // console.log('Price result: ' + priceResult)
 
-     console.log(await curve.methods.coins( 0).call());
-     console.log(await curve.methods.coins( 1).call());
-     console.log(await curve.methods.coins( 2).call());
+    console.log(amount + ',' +  priceResult)
 
+    // console.log('')
 }
 
 
-// curveTest(20).then(value => {
-//     curveTest(2000).then(value => {
-//         curveTest(200000)
-//     });
-// })
+async function testValue(){
+
+    let value = 1000000;
+    for (let i = 0; i <50 ; i++) {
+        await curveTest(value)
+        value +=1000000;
+    }
+}
+
+
+
+testValue();
