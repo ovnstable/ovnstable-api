@@ -44,7 +44,7 @@ async function getItems() {
     let startBlock;
     if (query[0][0]) {
         startBlock = query[0][0].block + 1;
-        lastDateFromPayouts = moment.utc(new Date(query[0][0].payable_date.toString().slice(0, 24)));
+        lastDateFromPayouts = moment.utc(new Date(query[0][0].date.toString().slice(0, 24)));
     } else {
         startBlock = 20432146;
     }
@@ -70,6 +70,7 @@ async function getItems() {
         }
     }
 
+    debug('Count mint/Redeems ' + results.length)
     return results;
 }
 

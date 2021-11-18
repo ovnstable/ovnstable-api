@@ -77,6 +77,7 @@ async function getItems() {
         }
     }
 
+    debug('Count payouts ' + results.length)
 
     return results;
 }

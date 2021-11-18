@@ -1,5 +1,3 @@
-const moment = require("moment");
-
 const web3Service = require('../web3Service.js');
 const {getLiq} = require("./utils");
 const {toFixed} = require("accounting-js");
@@ -8,7 +6,6 @@ let vault = web3Service.vault;
 let a3CrvGaugePriceGetter = web3Service.a3CrvGaugePriceGetter;
 
 let am3CRVGauge = web3Service.erc20('0x19793B454D3AfC7b454F206Ffe95aDE26cA6912c');
-let ZERO_ETHER = web3Service.web3.utils.toWei('0', 'ether');
 
 async function _getAm3CRVGauge(blocks){
 
@@ -44,15 +41,11 @@ async function _getAm3CRVGauge(blocks){
 
 async function getLiqPrice(amount, block) {
 
-    let fixed = toFixed(amount * 10 ** 6, 0);
-    // index = 1 = amUSDC
-    const amounts = [ZERO_ETHER, fixed, ZERO_ETHER];
-
-    // return value with slippage without fee
-    // https://curve.readthedocs.io/factory-deposits.html#DepositZap.calc_token_amount
-
-    let result = await web3Service.curve.methods.calc_token_amount(amounts, false).call({}, block);
-    return (result / 10 ** 18) / amount;
+    let index = 1;
+    // index = 1 = amUSDC - pool index
+    let value = web3Service.web3.utils.toWei(amount+ '');
+    let result = await web3Service.curve.methods.calc_withdraw_one_coin(value, index).call({}, block);
+    return (result/ 10 ** 6) / amount;
 }
 
 

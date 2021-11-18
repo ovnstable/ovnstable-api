@@ -137,12 +137,12 @@ async function recreateM2m() {
     // await payouts.loadPayouts();
     // await mintRedeem.loadRecords();
 
-    await uploadMintRedeem();
+    // await uploadMintRedeem();
     // await uploadPayouts();
 
-    // await updateIndex();
+    await updateIndex();
     // debug('Push m2m to sheet')
-    // pushToSheet();
+    pushToSheet();
 }
 
 
