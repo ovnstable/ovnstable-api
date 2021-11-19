@@ -7,7 +7,7 @@ const {getLiq} = require("./utils");
 let vault = web3Service.vault;
 let usdc = web3Service.erc20('0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174');
 
-async function _getUSDC(blocks){
+async function _getUSDC(blocks) {
 
     let results = [];
 
@@ -16,7 +16,7 @@ async function _getUSDC(blocks){
 
         let price = 1;
         let positions = await usdc.methods.balanceOf(vault.options.address).call({}, item.block) / 10 ** 6;
-        let liq = await getLiq([0.1, 1, 10, 100], positions, item.block, ()=> price);
+        let liq = await getLiq(positions, item.block, () => price);
 
         results.push({
             ...item,
@@ -34,7 +34,6 @@ async function _getUSDC(blocks){
 
     return results;
 }
-
 
 
 module.exports = {

@@ -1,6 +1,6 @@
+const modifiers = [0.1, 1, 10, 100, 1000];
 
-
-async function getLiq(modifiers, amount, block, getLiqPrice){
+async function getLiq(amount, block, getLiqPrice) {
 
     let item = {};
     for (let i = 0; i < modifiers.length; i++) {
@@ -8,7 +8,7 @@ async function getLiq(modifiers, amount, block, getLiqPrice){
 
         let sum = amount * modifier;
 
-        let symbol = modifier +"";
+        let symbol = modifier + "";
         if (modifier === 0.1)
             symbol = '01';
 

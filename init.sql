@@ -106,11 +106,13 @@ create table anal.m2m
     liquidation_price_1  decimal,
     liquidation_price_10 decimal,
     liquidation_price_100 decimal,
+    liquidation_price_1000 decimal,
 
     liquidation_value_01 decimal,
     liquidation_value_1  decimal,
     liquidation_value_10 decimal,
     liquidation_value_100 decimal,
+    liquidation_value_1000 decimal,
     date                  timestamp,
     transaction_hash      varchar,
     fee                   decimal,

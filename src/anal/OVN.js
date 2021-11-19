@@ -18,7 +18,7 @@ async function _getOVN(blocks) {
 
         let netAssetValue = positions * price;
 
-        let liq = await getLiq([0.1, 1, 10, 100], positions, item.block, ()=> price);
+        let liq = await getLiq(positions, item.block, () => price);
 
         results.push({
             ...item,

@@ -41,11 +41,13 @@ let m2mEntity = dataBase.sequelize.define('m2mEntity', {
         liquidationPrice_1: DataTypes.DECIMAL,
         liquidationPrice_10: DataTypes.DECIMAL,
         liquidationPrice_100: DataTypes.DECIMAL,
+        liquidationPrice_1000: DataTypes.DECIMAL,
 
         liquidationValue_01: DataTypes.DECIMAL,
         liquidationValue_1: DataTypes.DECIMAL,
         liquidationValue_10: DataTypes.DECIMAL,
         liquidationValue_100: DataTypes.DECIMAL,
+        liquidationValue_1000: DataTypes.DECIMAL,
         marketPrice: DataTypes.DECIMAL,
         date: DataTypes.DATE,
         transactionHash: DataTypes.STRING,

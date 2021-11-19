@@ -20,18 +20,18 @@ async function _getWmatic(blocks) {
         let block = item.block;
 
         let number;
-        if (item.type !== 'PAYOUT AFTER' && item.type !== 'PAYOUT BEFORE'){
-            number = await gauge.methods.claimable_reward_write(vault.options.address, "0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270").call({}, block ) / 10 ** 18
-        }else {
-            let claimedBefore = await gauge.methods.claimed_reward(vault.options.address, "0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270").call({}, block-1 ) / 10 ** 18
-            let claimedAfter = await gauge.methods.claimed_reward(vault.options.address, "0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270").call({}, block+1 ) / 10 ** 18
+        if (item.type !== 'PAYOUT AFTER' && item.type !== 'PAYOUT BEFORE') {
+            number = await gauge.methods.claimable_reward_write(vault.options.address, "0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270").call({}, block) / 10 ** 18
+        } else {
+            let claimedBefore = await gauge.methods.claimed_reward(vault.options.address, "0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270").call({}, block - 1) / 10 ** 18
+            let claimedAfter = await gauge.methods.claimed_reward(vault.options.address, "0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270").call({}, block + 1) / 10 ** 18
             number = claimedAfter - claimedBefore;
         }
 
         let marketPrice = await chainLinkPrice.getPriceMatic(block);
         let netAssetValue = number * marketPrice;
 
-        let liq = await getLiq([0.1, 1, 10, 100], number, block, getLiqPrice);
+        let liq = await getLiq(number, block, getLiqPrice);
 
         results.push({
             ...item,
@@ -51,7 +51,7 @@ async function _getWmatic(blocks) {
 }
 
 
-async function getLiqPrice(amount,block) {
+async function getLiqPrice(amount, block) {
 
     if (amount === 0)
         return 0;
@@ -65,7 +65,7 @@ async function getLiqPrice(amount,block) {
 
         let toBN = web3Service.web3.utils.toBN(value);
         let amountsOut = await web3Service.swapRouter.methods.getAmountsOut(toBN, res).call({}, block);
-        let price = ((amountsOut[1] * (10**12) * 10**18)/ amountsOut[0]) / 10 ** 18
+        let price = ((amountsOut[1] * (10 ** 12) * 10 ** 18) / amountsOut[0]) / 10 ** 18
         return price;
     } catch (e) {
         debug('Error ' + e)

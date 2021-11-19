@@ -74,41 +74,35 @@ function erc20(address) {
 
 async function curveTest(amount) {
 
-    // console.log(' ')
+    console.log(' ')
 
     // index = 1 = amUSDC
 
     let priceLp = await curve.methods.get_virtual_price().call() / 10 ** 18;
-    // console.log('Price lp token: ' + priceLp);
-
-    // console.log(amount)
-
-    // console.log('Sum amUSDC: ' + amount)
-    // let newSum = (amount / priceLp)
-    // console.log('Count am3CRV:' + newSum);
+    console.log('Price lp token: ' + priceLp);
+    console.log('Sum amUSDC: ' + amount)
+    let newSum = (amount / priceLp)
+    console.log('Count am3CRV:' + newSum);
 
     let ZERO_ETHER = web3.utils.toWei('0', 'ether');
-    let fixed = toFixed( amount * 10 ** 6, 0);
-    // console.log('Sum after fixed: ' + fixed)
+    let fixed = toFixed( newSum * 10 ** 6, 0);
+    console.log('Sum after fixed: ' + fixed)
     const amounts = [ZERO_ETHER, fixed, ZERO_ETHER];
 
     let calcTokenAmount = await curve.methods.calc_token_amount(amounts, true).call();
-    // console.log('Sum with slippage am3CRV: ' + calcTokenAmount  / 10 ** 18)
+    console.log('Sum with slippage am3CRV: ' + calcTokenAmount  / 10 ** 18)
 
-    let withdrAmount1 = await curve.methods.calc_withdraw_one_coin(calcTokenAmount, 1).call();
+    let withdrAmount = await curve.methods.calc_withdraw_one_coin(calcTokenAmount, 1).call();
 
-    let convert = withdrAmount1 / 10 ** 6
-    // console.log('Liquidation value amUSDC : ' + convert)
+    let convert = withdrAmount / 10 ** 6
+    console.log('Liquidation value amUSDC : ' + convert)
 
     let number = amount/( calcTokenAmount / 10 ** 18);
-    // console.log('Liquidation price: ' + number)
-    // console.log('Liquidation price office: ' + priceLp)
+    console.log('Liquidation price: ' + number)
+    console.log('Liquidation price office: ' + priceLp)
     let priceResult = number - priceLp;
-    // console.log('Price result: ' + priceResult)
+    console.log('Price result: ' + priceResult)
 
-    console.log(amount + ',' +  priceResult)
-
-    // console.log('')
 }
 
 
