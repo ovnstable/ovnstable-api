@@ -136,19 +136,18 @@ async function recreateM2m() {
 
     debug('recreate m2m')
 
-    // await payouts.loadPayouts();
-    // await mintRedeem.loadRecords();
+    await payouts.loadPayouts();
+    await mintRedeem.loadRecords();
 
-    // await uploadMintRedeem();
-    // await uploadPayouts();
+    await uploadMintRedeem();
+    await uploadPayouts();
 
     await updateIndex();
-    // debug('Push m2m to sheet')
+    debug('Push m2m to sheet')
     pushToSheet();
 }
 
 
-recreateM2m();
 
 async function updateIndex() {
 
