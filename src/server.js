@@ -12,17 +12,22 @@ const payouts = require('./payouts');
 
 async function load() {
 
-    let totalSupply = await web3Service.ovn.methods.totalSupply().call();
-    let totalBurn = await web3Service.ovn.methods.totalBurn().call();
-    let totalMint = await web3Service.ovn.methods.totalMint().call();
-
-    let request = {
-        totalMint: totalMint / 10 ** 6,
-        totalBurn: totalBurn / 10 ** 6,
-        totalSupply: totalSupply / 10 ** 6,
+    let totalSupply = 0;
+    let totalBurn = 0;
+    let totalMint = 0;
+    try {
+        totalSupply = await web3Service.ovn.methods.totalSupply().call() / 10 ** 6;
+        totalBurn = await web3Service.ovn.methods.totalBurn().call() / 10 ** 6;
+        totalMint = await web3Service.ovn.methods.totalMint().call() / 10 ** 6;
+    } catch (e) {
+        debug("Error: " + e)
     }
 
-    return request;
+    return {
+        totalMint: totalMint,
+        totalBurn: totalBurn,
+        totalSupply: totalSupply,
+    };
 }
 
 async function activePrices() {
@@ -38,10 +43,16 @@ const port = 3000
 
 server.get('/api/total', (req, res) => {
 
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Content-Type', 'application/json');
+
     load().then(value => {
-        res.setHeader('Access-Control-Allow-Origin', '*');
-        res.setHeader('Content-Type', 'application/json');
+
         res.end(JSON.stringify(value));
+    }).catch(reason => {
+        debug("Error " + reason)
+        res.status(400)
+        res.end();
     })
 
 });
@@ -59,42 +70,33 @@ server.get('/api/update-widgets', (req, res) => {
 })
 
 server.get('/api/widget/:widgetId', (req, res) => {
-
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Content-Type', 'application/json');
 
     let widgetId = req.params.widgetId;
     switch (widgetId) {
         case 'polybor':
             widget.polybor().then(value => {
-                res.setHeader('Access-Control-Allow-Origin', '*');
-                res.setHeader('Content-Type', 'application/json');
                 res.end(JSON.stringify(value));
             });
             break;
         case 'polybor-week':
             widget.polyborWeek().then(value => {
-                res.setHeader('Access-Control-Allow-Origin', '*');
-                res.setHeader('Content-Type', 'application/json');
                 res.end(JSON.stringify(value));
             });
             break;
         case 'polybor-weeks':
             widget.polyborWeeks().then(value => {
-                res.setHeader('Access-Control-Allow-Origin', '*');
-                res.setHeader('Content-Type', 'application/json');
                 res.end(JSON.stringify(value));
             });
             break;
         case 'interest-rate':
             widget.interestRate().then(value => {
-                res.setHeader('Access-Control-Allow-Origin', '*');
-                res.setHeader('Content-Type', 'application/json');
                 res.end(JSON.stringify(value));
             });
             break;
         case 'distribution-rate':
             widget.distributionRate().then(value => {
-                res.setHeader('Access-Control-Allow-Origin', '*');
-                res.setHeader('Content-Type', 'application/json');
                 res.end(JSON.stringify(value));
             });
             break;
@@ -110,6 +112,8 @@ server.get('/api/widget/:widgetId', (req, res) => {
 
 server.get('/api/payouts', (req, res) => {
 
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Content-Type', 'application/json');
 
     payouts.getPayouts(10).then(value => {
 
@@ -123,16 +127,20 @@ server.get('/api/payouts', (req, res) => {
             }
         })
 
-        res.setHeader('Access-Control-Allow-Origin', '*');
-        res.setHeader('Content-Type', 'application/json');
+
         res.end(JSON.stringify(value));
+    }).catch(reason => {
+        debug("Error: " + reason)
+        res.status(400)
+        res.end();
     })
 
 });
 
 server.get('/api/prices', (req, res) => {
 
-
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Content-Type', 'application/json');
     activePrices().then(value => {
 
         value = value.assetPrices;
@@ -152,9 +160,11 @@ server.get('/api/prices', (req, res) => {
             })
         }
 
-        res.setHeader('Access-Control-Allow-Origin', '*');
-        res.setHeader('Content-Type', 'application/json');
         res.end(JSON.stringify(items));
+    }).catch(reason => {
+        debug("Error: " + reason)
+        res.status(400)
+        res.end();
     })
 });
 

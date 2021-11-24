@@ -1,6 +1,5 @@
 const fs = require('fs');
 const Web3 = require('web3');
-const {toFixed} = require("accounting-js");
 const dotenv = require('dotenv');
 dotenv.config();
 
@@ -27,18 +26,19 @@ web3.eth.net.getId().then(value => {
 });
 
 
-let ovn = new web3.eth.Contract(OverNightToken.abi, OverNightToken.networks[137].address);
-let m2m = new web3.eth.Contract(M2m.abi, M2m.networks[137].address);
-let exchange = new web3.eth.Contract(Exchange.abi, Exchange.networks[137].address);
+
+let ovn = new web3.eth.Contract(OverNightToken.abi, OverNightToken.address);
+let m2m = new web3.eth.Contract(M2m.abi, M2m.address);
+let exchange = new web3.eth.Contract(Exchange.abi, Exchange.address);
 
 let curve = new web3.eth.Contract(Curve.abi, '0x445FE580eF8d70FF569aB36e80c647af338db351');
-let wMaticPriceGetter = new web3.eth.Contract(WMaticPriceGetter.abi, WMaticPriceGetter.networks[137].address);
-let crvPriceGetter = new web3.eth.Contract(CrvPriceGetter.abi, CrvPriceGetter.networks[137].address);
+let wMaticPriceGetter = new web3.eth.Contract(WMaticPriceGetter.abi, WMaticPriceGetter.address);
+let crvPriceGetter = new web3.eth.Contract(CrvPriceGetter.abi, CrvPriceGetter.address);
 let gauge = new web3.eth.Contract(Gauge.abi, '0x19793B454D3AfC7b454F206Ffe95aDE26cA6912c');
 let uniswapV2Router02 = new web3.eth.Contract(IUniswapV2Router02.abi, '0xa5e0829caced8ffdd4de3c43696c57f7d7a678ff');
-let vault = new web3.eth.Contract(Vault.abi, Vault.networks[137].address)
-let a3CrvPriceGetter = new web3.eth.Contract(A3CrvPriceGetter.abi, A3CrvPriceGetter.networks[137].address)
-let a3CrvGaugePriceGetter = new web3.eth.Contract(A3CrvGaugePriceGetter.abi, A3CrvGaugePriceGetter.networks[137].address)
+let vault = new web3.eth.Contract(Vault.abi, Vault.address)
+let a3CrvPriceGetter = new web3.eth.Contract(A3CrvPriceGetter.abi, A3CrvPriceGetter.address)
+let a3CrvGaugePriceGetter = new web3.eth.Contract(A3CrvGaugePriceGetter.abi, A3CrvGaugePriceGetter.address)
 
 debug('Exchange address: ' + exchange.options.address)
 debug('M2m address: ' + m2m.options.address)
@@ -70,5 +70,4 @@ function _uniswapV2Pair(...address) {
 function erc20(address) {
     return new web3.eth.Contract(ERC20.abi, address);
 }
-
 
