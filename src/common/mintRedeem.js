@@ -1,11 +1,11 @@
 const axios = require('axios');
 let debug = require('debug')('server');
 
-const web3Service = require('./web3Service');
+const web3Service = require('../web3Service');
 const moment = require("moment");
 const {toFixed} = require("accounting-js");
-const {pushToSheet} = require("./pushToSheet");
-const {sequelize} = require("./database");
+const {pushToSheet} = require("../pushToSheet");
+const {sequelize} = require("../database");
 const { DataTypes} = require("sequelize");
 
 let covalentApiKey = process.env.COVALENT_API_KEY;

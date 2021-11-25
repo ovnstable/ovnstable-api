@@ -1,7 +1,6 @@
 let accounting = require('accounting-js');
-let moment = require('moment');
 const pushToSheet = require('./pushToSheet.js');
-const dataBase = require('./database.js');
+const repository = require('./repository.js');
 let debug = require('debug')('server');
 
 
@@ -13,7 +12,7 @@ let accountingConfig = {
 
 
 const _polybor = async () => {
-    return dataBase.getWidgetPolybor().then(value => {
+    return repository.getWidgetPolybor().then(value => {
         return {
             latest: accounting.formatMoney(value.latest, accountingConfig),
             day: accounting.formatMoney(value.day, accountingConfig),
@@ -23,7 +22,7 @@ const _polybor = async () => {
 }
 const _polyborWeek = async () => {
 
-    return dataBase.getWidgetPolyborWeek().then(value => {
+    return repository.getWidgetPolyborWeek().then(value => {
         return {
             latest: accounting.formatMoney(value.latest, accountingConfig),
             day: accounting.formatMoney(value.day, accountingConfig),
@@ -33,7 +32,7 @@ const _polyborWeek = async () => {
 }
 
 const _interestRate = async () => {
-    return (await dataBase.getWidgetInterestRates()).map(value => {
+    return (await repository.getWidgetInterestRates()).map(value => {
         return {
             date: value.date,
             value: value.value,
@@ -43,12 +42,12 @@ const _interestRate = async () => {
 }
 
 const _distributionRate = async () => {
-    return dataBase.getWidgetDistributionRates();
+    return repository.getWidgetDistributionRates();
 }
 
 const _polyborWeeks = async () => {
 
-    return (await dataBase.getWidgetPolyborWeeksTable()).map(value => {
+    return (await repository.getWidgetPolyborWeeksTable()).map(value => {
         return {
             label: value.label,
             latest: value.latest,
@@ -72,7 +71,7 @@ const _updateWidgetFromSheet = () => {
             element.normalDist = element.normalDist * 100;
         }
 
-        dataBase.saveWidgetDistributionRates(value).catch(reason => {
+        repository.saveWidgetDistributionRates(value).catch(reason => {
             debug(reason)
         });
     });
@@ -90,7 +89,7 @@ const _updateWidgetFromSheet = () => {
             }
         }
 
-        dataBase.saveWidgetInterestRates(results.reverse()).catch(reason => {
+        repository.saveWidgetInterestRates(results.reverse()).catch(reason => {
             debug(reason)
         });
 
@@ -107,7 +106,7 @@ const _updateWidgetFromSheet = () => {
             element.low = parseFloat(element.low.replace(/%/g, ""));
         }
 
-        dataBase.saveWidgetPolyborWeeksTable(value).catch(reason => {
+        repository.saveWidgetPolyborWeeksTable(value).catch(reason => {
             debug(reason)
         });
 
@@ -125,12 +124,12 @@ const _updateWidgetFromSheet = () => {
 
 
         let find = value.find(item => item.type === 'polybor');
-        dataBase.saveWidgetPolybor([find]).catch(reason => {
+        repository.saveWidgetPolybor([find]).catch(reason => {
             debug(reason)
         });
 
         find = value.find(item => item.type === 'polybor-week');
-        dataBase.saveWidgetPolyborWeek([find]).catch(reason => {
+        repository.saveWidgetPolyborWeek([find]).catch(reason => {
             debug(reason)
         })
 

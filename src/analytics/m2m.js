@@ -4,8 +4,8 @@ dotenv.config();
 const moment = require("moment");
 let debug = require('debug')('m2m');
 
-const payouts = require('./payouts.js');
-const mintRedeem = require('./mintRedeem.js');
+const payouts = require('./entity/payouts.js');
+const mintRedeem = require('./entity/mintRedeem.js');
 const googleSheet = require('./pushToSheet.js');
 const web3Service = require('./web3Service.js');
 
@@ -21,7 +21,6 @@ const {getWmatic} = require('./anal/WMATIC.js');
 const {getAm3CRVGauge} = require('./anal/Am3CRVGauge.js');
 const {getAm3CRV} = require('./anal/Am3CRV.js');
 const {getOVN} = require('./anal/OVN.js');
-const {getRecords} = require("./mintRedeem");
 
 
 let m2mEntity = dataBase.sequelize.define('m2mEntity', {

@@ -1,49 +1,6 @@
 const {Sequelize, DataTypes} = require('sequelize');
 let debug = require('debug')('server');
-
-let url = process.env.POSTGRES_CONNECT_URL;
-if (!url)
-    url= 'postgres://postgres:@localhost:5432/ovn_analytics'
-
-debug('Connect url: ' + url)
-const sequelize = new Sequelize(url)
-
-try {
-    sequelize.authenticate().then(value => {
-       debug('Соединение с БД было успешно установлено')
-    })
-} catch (e) {
-   debug('Невозможно выполнить подключение к БД: ', e)
-}
-
-
-let asset = sequelize.define('Asset', {
-        id: {
-            type: Sequelize.UUID,
-            defaultValue: Sequelize.UUIDV4,
-            allowNull: false,
-            primaryKey: true
-        },
-        active: DataTypes.STRING,
-        activeName: DataTypes.STRING,
-        position: DataTypes.DECIMAL,
-        marketPrice: DataTypes.DECIMAL,
-        netAssetValue: DataTypes.DECIMAL,
-        liquidationPrice: DataTypes.DECIMAL,
-        liquidationValue: DataTypes.DECIMAL,
-        type: DataTypes.STRING,
-        amount: DataTypes.DECIMAL,
-        amountFee: DataTypes.DECIMAL,
-        sender: DataTypes.STRING,
-        balanceOvn: DataTypes.DECIMAL,
-        transactionHash: DataTypes.STRING,
-    },
-    {
-        timestamps: true,
-        tableName: 'asset_prices_for_balance',
-        underscored: true,
-    }
-);
+const {sequelize} = require('../common/database.js')
 
 
 let distributionRateEntity = sequelize.define('WidgetDistributionRate', {
@@ -190,7 +147,6 @@ const  _saveWidgetPolyborWeeksTable = (items) => {
 
 
 module.exports = {
-    sequelize: sequelize,
     saveWidgetDistributionRates: _saveWidgetDistributionRates,
     saveWidgetInterestRates: _saveWidgetInterestRates,
     saveWidgetPolybor: _saveWidgetPolybor,

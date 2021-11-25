@@ -1,14 +1,10 @@
 const dotenv = require('dotenv');
 dotenv.config();
-var cron = require('node-cron');
-
-const web3Service = require('./web3Service.js');
+const cron = require('node-cron');
+const web3utils = require('./web3Utils.js');
 let debug = require('debug')('server')
 
-const widget = require('./widget.js')
-
-const payouts = require('./payouts');
-
+const payouts = require('../common/payouts');
 
 async function load() {
 
@@ -16,9 +12,9 @@ async function load() {
     let totalBurn = 0;
     let totalMint = 0;
     try {
-        totalSupply = await web3Service.ovn.methods.totalSupply().call() / 10 ** 6;
-        totalBurn = await web3Service.ovn.methods.totalBurn().call() / 10 ** 6;
-        totalMint = await web3Service.ovn.methods.totalMint().call() / 10 ** 6;
+        totalSupply = await web3utils.ovn.methods.totalSupply().call() / 10 ** 6;
+        totalBurn = await web3utils.ovn.methods.totalBurn().call() / 10 ** 6;
+        totalMint = await web3utils.ovn.methods.totalMint().call() / 10 ** 6;
     } catch (e) {
         debug("Error: " + e)
     }
@@ -31,9 +27,7 @@ async function load() {
 }
 
 async function activePrices() {
-
-    let result = await web3Service.m2m.methods.assetPricesForBalance().call();
-    return result;
+    return await web3utils.m2m.methods.assetPricesForBalance().call();
 }
 
 
@@ -62,52 +56,6 @@ server.get('/api/load-payouts', (req, res) => {
     payouts.loadPayouts();
     res.end();
 })
-
-server.get('/api/update-widgets', (req, res) => {
-    debug('API: Update widgets')
-    widget.updateWidgetFromSheet();
-    res.end();
-})
-
-server.get('/api/widget/:widgetId', (req, res) => {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Content-Type', 'application/json');
-
-    let widgetId = req.params.widgetId;
-    switch (widgetId) {
-        case 'polybor':
-            widget.polybor().then(value => {
-                res.end(JSON.stringify(value));
-            });
-            break;
-        case 'polybor-week':
-            widget.polyborWeek().then(value => {
-                res.end(JSON.stringify(value));
-            });
-            break;
-        case 'polybor-weeks':
-            widget.polyborWeeks().then(value => {
-                res.end(JSON.stringify(value));
-            });
-            break;
-        case 'interest-rate':
-            widget.interestRate().then(value => {
-                res.end(JSON.stringify(value));
-            });
-            break;
-        case 'distribution-rate':
-            widget.distributionRate().then(value => {
-                res.end(JSON.stringify(value));
-            });
-            break;
-
-
-        default:
-            debug('Unknown widget id ' + widgetId)
-    }
-
-
-});
 
 
 server.get('/api/payouts', (req, res) => {
@@ -186,13 +134,7 @@ cron.schedule('00 00 * * *', () => {
 cron.schedule('0 * * * *', () => {
 
     debug('Run cron - load payouts')
-    payouts.loadPayouts().then(value => {
-        setTimeout(args => {
-            debug('Run cron - Update Widget')
-            widget.updateWidgetFromSheet();
-
-        }, 5 * 60 * 1000); //5 minutes
-    });
+    payouts.loadPayouts();
 
 });
 
@@ -208,8 +150,8 @@ if (PRIV_KEY) {
 
 function runReward() {
 
-    let exchange = web3Service.exchange;
-    let web3 = web3Service.web3;
+    let exchange = web3utils.exchange;
+    let web3 = web3utils.web3;
 
     const from = "0x5CB01385d3097b6a189d1ac8BA3364D900666445" // Ovn ADMIN account
     const to = exchange.options.address;
