@@ -3,12 +3,13 @@
 
 token=$1
 url=$2
+name=$3
 tag=1
 
 echo URL $url
 echo Token $token
 
-docker build . -t cr.yandex/crpg11k469bhc8lch9gm/overnight/dapp-api:$tag
+docker build . -t cr.yandex/crpg11k469bhc8lch9gm/overnight/$name:$tag
 
 
 docker login \
@@ -16,7 +17,7 @@ docker login \
          --password $token \
         cr.yandex
 
-docker push  cr.yandex/crpg11k469bhc8lch9gm/overnight/dapp-api:$tag
+docker push  cr.yandex/crpg11k469bhc8lch9gm/overnight/$name:$tag
 
 
 ssh $url docker login \
@@ -24,7 +25,7 @@ ssh $url docker login \
          --password $token \
         cr.yandex
 
-ssh $url docker pull cr.yandex/crpg11k469bhc8lch9gm/overnight/dapp-api:$tag
-ssh $url docker-compose -f /root/docker/docker-compose.yaml up -d --no-deps overnight-dapp-api
+ssh $url docker pull cr.yandex/crpg11k469bhc8lch9gm/overnight/$name:$tag
+ssh $url docker-compose -f /root/ovn/docker-compose.yaml up -d --no-deps ovn-$name
 
-ssh $url docker logs overnight-dapp-api -f
+ssh $url docker logs ovn-$name -f

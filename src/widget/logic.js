@@ -1,5 +1,5 @@
 let accounting = require('accounting-js');
-const pushToSheet = require('./pushToSheet.js');
+const sheet = require('./sheet.js');
 const repository = require('./repository.js');
 let debug = require('debug')('server');
 
@@ -63,7 +63,7 @@ const _updateWidgetFromSheet = () => {
     debug('Run loading widget data from sheet ')
 
 
-    pushToSheet.getDistributionRates().then(value => {
+    sheet.getDistributionRates().then(value => {
 
         for (let i = 0; i < value.length; i++) {
             let element = value[i];
@@ -77,7 +77,7 @@ const _updateWidgetFromSheet = () => {
     });
 
 
-    pushToSheet.getInterestRates().then(value => {
+    sheet.getInterestRates().then(value => {
 
         let results = [];
         for (let i = 0; i < value.length; i++) {
@@ -96,7 +96,7 @@ const _updateWidgetFromSheet = () => {
     });
 
 
-    pushToSheet.getPolyborTable().then(value => {
+    sheet.getPolyborTable().then(value => {
 
         for (let i = 0; i < value.length; i++) {
             let element = value[i];
@@ -113,7 +113,7 @@ const _updateWidgetFromSheet = () => {
     });
 
 
-    pushToSheet.getPolybor().then(value => {
+    sheet.getPolybor().then(value => {
 
         for (let i = 0; i < value.length; i++) {
             let element = value[i];
