@@ -25,6 +25,6 @@ ssh $url docker login \
         cr.yandex
 
 ssh $url docker pull cr.yandex/crpg11k469bhc8lch9gm/overnight/dapp-api:$tag
-ssh $url docker-compose -f /root/ovn/docker-compose.yaml up -d --no-deps ovn-dapp-api
+ssh $url docker-compose -f /root/ovn/docker-compose.yaml up -d --no-deps dapp-api
 
 ssh $url docker logs ovn-dapp-api -f

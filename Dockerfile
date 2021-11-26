@@ -8,7 +8,7 @@ WORKDIR /usr/src/app
 # where available (npm@5+)
 COPY package*.json ./
 COPY contracts ./
-COPY server/* ./
+COPY src/* ./
 
 RUN npm install
 # If you are building your code for production
