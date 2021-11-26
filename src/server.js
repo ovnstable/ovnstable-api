@@ -2,9 +2,6 @@ const dotenv = require('dotenv');
 dotenv.config();
 const cron = require('node-cron');
 let debug = require('debug')('server')
-
-const payouts = require('../common/payouts');
-
 const logic = require('./logic');
 
 const express = require('express')
@@ -25,12 +22,6 @@ server.get('/api/total', (req, res) => {
     })
 
 });
-
-server.get('/api/load-payouts', (req, res) => {
-    debug('API: Load-payouts')
-    payouts.loadPayouts();
-    res.end();
-})
 
 
 server.get('/api/payouts', (req, res) => {
@@ -74,19 +65,6 @@ debug('Start Cron')
 cron.schedule('00 00 * * *', () => {
     debug('Run cron run payuts');
     logic.runPayouts();
-});
-
-
-// Every hour
-cron.schedule('0 * * * *', () => {
-
-    debug('Run cron - load payouts')
-    logic.loadPayouts().then(value => {
-        debug("Load payouts -> completed")
-    }).catch(reason => {
-        debug('Load payouts -> Error: '+ reason)
-    });
-
 });
 
 

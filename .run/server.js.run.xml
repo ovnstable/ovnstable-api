@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="server-prod" type="NodeJSConfigurationType" application-parameters="test" path-to-js-file="$PROJECT_DIR$/src/server/server.js" working-dir="$PROJECT_DIR$">
+  <configuration default="false" name="server-prod" type="NodeJSConfigurationType" application-parameters="test" path-to-js-file="$PROJECT_DIR$/src/server.js" working-dir="$PROJECT_DIR$">
     <envs>
       <env name="WEB3_URL" value="'https://polygon-mainnet.infura.io/v3/66f5eb50848f458cb0f0506cc1036fea'" />
     </envs>

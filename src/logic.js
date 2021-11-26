@@ -1,7 +1,7 @@
 const web3utils = require("./web3Utils.js");
-const {payouts } = require("./logic");
-const {loadPayouts} = require("../common/payouts");
 let debug = require('debug')('server')
+
+const database = require('./database');
 
 async function total() {
 
@@ -46,9 +46,9 @@ async function activePrices() {
     return items;
 }
 
-async function getPayouts(){
+async function getPayouts() {
 
-    return payouts.getPayouts(10).then(value => {
+    return database.getPayouts(10).then(value => {
         return value.map(item => {
             return {
                 transactionHash: item.transaction_hash,
@@ -109,11 +109,9 @@ function runPayouts() {
 }
 
 
-
-module.exports ={
+module.exports = {
     getTotal: total,
     getActivePrices: activePrices,
     getPayouts: getPayouts,
-    loadPayouts: loadPayouts,
     runPayouts: runPayouts,
 }
