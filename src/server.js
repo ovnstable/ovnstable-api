@@ -1,5 +1,5 @@
-const dotenv = require('dotenv');
-dotenv.config();
+require('dotenv').config({ path: `.env.${process.env.NODE_ENV}` })
+console.log('NODE_ENV: ' + process.env.NODE_ENV)
 const cron = require('node-cron');
 let debug = require('debug')('server')
 const logic = require('./logic');
