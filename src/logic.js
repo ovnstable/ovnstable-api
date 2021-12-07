@@ -24,7 +24,7 @@ async function total() {
 }
 
 async function activePrices() {
-    let value = await web3utils.m2m.methods.assetPricesForBalance().call();
+    let value = await web3utils.m2m.methods.assetPrices().call();
 
     value = value.assetPrices;
     let items = [];
