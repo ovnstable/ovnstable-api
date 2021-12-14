@@ -9,9 +9,9 @@ async function total() {
     let totalBurn = 0;
     let totalMint = 0;
     try {
-        totalSupply = await web3utils.ovn.methods.totalSupply().call() / 10 ** 6;
-        totalBurn = await web3utils.ovn.methods.totalBurn().call() / 10 ** 6;
-        totalMint = await web3utils.ovn.methods.totalMint().call() / 10 ** 6;
+        totalSupply = await web3utils.usdPlus.methods.totalSupply().call() / 10 ** 6;
+        totalBurn = await web3utils.usdPlus.methods.totalBurn().call() / 10 ** 6;
+        totalMint = await web3utils.usdPlus.methods.totalMint().call() / 10 ** 6;
     } catch (e) {
         debug("Error: " + e)
     }
