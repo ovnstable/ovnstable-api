@@ -4,9 +4,17 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 let debug = require('debug')('server');
-let UsdPlusToken = JSON.parse(fs.readFileSync('./contracts/UsdPlusToken.json'));
-let Exchange = JSON.parse(fs.readFileSync('./contracts/Exchange.json'));
-let M2m = JSON.parse(fs.readFileSync('./contracts/Mark2Market.json'));
+
+let polygon = process.env.POLYGON;
+debug("Polygon: " + polygon)
+
+if (!polygon){
+    throw new Error("Неуказан параметр POLYGON")
+}
+
+let UsdPlusToken = JSON.parse(fs.readFileSync(`./contracts/${polygon}/UsdPlusToken.json`));
+let Exchange = JSON.parse(fs.readFileSync(`./contracts/${polygon}/Exchange.json`));
+let M2m = JSON.parse(fs.readFileSync(`./contracts/${polygon}/Mark2Market.json`));
 
 
 let web3URL = process.env.WEB3_URL
