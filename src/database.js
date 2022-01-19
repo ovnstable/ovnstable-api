@@ -21,7 +21,7 @@ try {
 function _getPayouts(limit) {
     return sequelize.query(`select *
                             from anal.payouts
-                            order by block desc
+                            order by date desc
                             limit ${limit}`).then(value => {
 
         let array = value[0];
@@ -29,7 +29,7 @@ function _getPayouts(limit) {
         if (array) {
             for (let i = 0; i < array.length; i++) {
                 let element = array[i];
-                element.payable_date = moment.utc(new Date(element.payable_date.toString().slice(0, 24)))
+                element.payable_date = moment.utc(new Date(element.date.toString().slice(0, 24)))
             }
         }
 
