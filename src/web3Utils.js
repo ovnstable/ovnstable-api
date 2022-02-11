@@ -15,7 +15,7 @@ if (!polygon){
 let UsdPlusToken = JSON.parse(fs.readFileSync(`./contracts/${polygon}/UsdPlusToken.json`));
 let Exchange = JSON.parse(fs.readFileSync(`./contracts/${polygon}/Exchange.json`));
 let M2m = JSON.parse(fs.readFileSync(`./contracts/${polygon}/Mark2Market.json`));
-
+let strategies = JSON.parse(fs.readFileSync(`./contracts/${polygon}/strategies.json`))
 
 let web3URL = process.env.WEB3_URL
 debug('Web3 URL ' + web3URL)
@@ -41,6 +41,6 @@ module.exports = {
     m2m: m2m,
     exchange: exchange,
     web3: web3,
-
+    strategies: strategies,
 };
 

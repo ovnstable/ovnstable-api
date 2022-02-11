@@ -24,22 +24,24 @@ async function total() {
 }
 
 async function activePrices() {
-    let value = await web3utils.m2m.methods.assetPrices().call();
+    let value = await web3utils.m2m.methods.strategyAssets().call();
 
-    value = value.assetPrices;
     let items = [];
     for (let i = 0; i < value.length; i++) {
-
         let element = value[i];
+
+        let name = web3utils.strategies[element.strategy];
+        if (!name)
+            name ='not defined';
+
+        if (Number.parseInt(element.liquidationValue) === 0 && Number.parseInt(element.netAssetValue) === 0)
+            continue;
+
         items.push({
-            symbol: element.symbol,
-            decimals: element.decimals,
-            name: element.name,
-            amountInVault: element.amountInVault,
-            usdcPriceInVault: element.usdcPriceInVault,
-            usdcBuyPrice: element.usdcBuyPrice,
-            usdcSellPrice: element.usdcSellPrice,
-            usdcPriceDenominator: element.usdcPriceDenominator,
+            name: name,
+            address: element.strategy,
+            liquidationValue: element.liquidationValue / 10 ** 6,
+            netAssetValue: element.netAssetValue / 10 ** 6,
         })
     }
 
